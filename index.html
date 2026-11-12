@@ -1,0 +1,546 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Салам! — аварский с нуля</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f7f5ec;color:#193d34;font:16px system-ui,sans-serif}header,main{max-width:850px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;align-items:center;gap:10px}header b{font-size:25px}.hero{position:relative;overflow:hidden;background:#184b3d;color:white;border-radius:26px;padding:32px;isolation:isolate}.hero svg{position:absolute;inset:auto 0 0;width:100%;z-index:-1;opacity:.55}h1{font-size:clamp(44px,9vw,78px);margin:8px 0;letter-spacing:-.06em}p{line-height:1.55}small{letter-spacing:.08em}button{font:inherit;font-weight:700;cursor:pointer;background:white;color:#193d34;border:1px solid #c8d5cc;border-radius:13px;padding:13px;text-align:left}button:hover:not(:disabled){border-color:#267654;background:#eaf5ec}button:focus-visible{outline:3px solid #bb7800;outline-offset:3px}button:disabled{opacity:.55;cursor:default}.primary{background:#f5cd6e;color:#222;border:0}.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}.card{background:white;border-radius:20px;padding:22px;margin-top:15px}.stack{display:grid;gap:9px;margin:16px 0}.muted{color:#49655c}.phrase{font-size:clamp(24px,6vw,40px);margin:12px 0}.good{color:#14683e}.bad{color:#a3442f}footer{margin-top:28px;font-size:14px}a{color:inherit}progress{width:100%;accent-color:#317d61}
+
+:root{--green:#146449;--dark:#132d25;--red:#b32c3f;--paper:#f7faf7}
+body{background:#e3ebe5;color:var(--dark);font-family:Nunito,system-ui,sans-serif}
+.shell{max-width:480px;min-height:100dvh;margin:auto;background:var(--paper)}
+header{position:sticky;top:0;z-index:2;background:#fff;padding:14px 18px;border-bottom:1px solid #e1ebe4}
+header b{color:var(--green)}#score{border-radius:99px;padding:7px 11px;background:#ffedf0;color:var(--red);font-weight:800;font-size:14px}
+main{padding:16px 16px calc(98px + env(safe-area-inset-bottom))}
+.hero{padding:24px;border-radius:24px;background:#125c44}
+h1{font-size:clamp(38px,10vw,54px);margin:10px 0}h2{font-size:22px}
+button{min-height:48px;touch-action:manipulation;transition:transform .14s ease,background-color .14s ease,border-color .14s ease}
+button:active:not(:disabled){transform:scale(.96)}
+.primary{background:#e5f7e8;color:#123c2d}
+#start,#next,#home{width:100%;text-align:center}
+.row{grid-template-columns:1fr}
+.row button{min-height:62px}.row button small{color:var(--green);font-weight:800}
+.card{border:1px solid #e0eae1;box-shadow:0 4px 12px #163a2410}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);z-index:3;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:white;border-top:1px solid #e0eae1;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.nav button{text-align:center;border:0;padding:6px 3px;font-size:13px}.nav strong{display:block;font-size:20px;line-height:24px}
+.nav button[aria-current="page"]{background:#e0f4e7;color:#0d5a3e}
+main.enter{animation:enter .22s ease both}@keyframes enter{from{opacity:.55;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){main.enter{animation:none}button{transition:none}}
+
+.lesson-card{padding:16px}
+.lesson-card .phrase{font-size:clamp(22px,6vw,32px);margin:8px 0}
+.lesson-card .stack{margin:10px 0}
+.tile-bank,.tile-answer{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.tile-answer{min-height:58px;padding:5px;border-bottom:2px dashed #abc6b6}
+.tile-bank button,.tile-answer button{padding:8px 11px}
+
+.course-hero{background:linear-gradient(135deg,#0e4435,#1b7555);padding:22px}
+.course-hero small{color:#c8efda;font-weight:800}
+.course-hero h1{font-size:clamp(31px,8vw,44px);line-height:1.05;letter-spacing:-.045em;margin:9px 0 18px}
+.course-hero #start{display:flex;justify-content:space-between;align-items:center;padding-inline:15px;background:#fff;color:#0c4e36}
+.course-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 20px}
+.course-stat{background:white;border:1px solid #e0eae1;border-radius:16px;padding:11px 13px}
+.course-stat b{display:block;font-size:20px;line-height:1.25}
+.course-stat span{font-size:12px;color:#466457}
+.week-marks{display:inline-flex;gap:3px;margin-left:4px;vertical-align:middle}
+.week-marks i{width:7px;height:7px;background:#d9e7dc;border-radius:50%}
+.week-marks i.filled{background:#aa2943}
+.chapter{--accent:#176749;--tint:#e5f4ea;background:white;border:1px solid #dce9de;border-radius:21px;padding:14px;margin-bottom:12px}
+.chapter[data-theme="rose"]{--accent:#992b46;--tint:#fae9ee}
+.chapter[data-theme="gold"]{--accent:#80501d;--tint:#faeedb}
+.chapter h2{font-size:18px;margin:0 0 13px;display:flex;align-items:center;gap:8px}
+.chapter-mark{display:grid;place-items:center;width:29px;height:29px;border-radius:9px;background:var(--tint);color:var(--accent)}
+.chapter-track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 5px}
+.lesson-stop{display:grid;grid-template-rows:49px auto;align-content:start;justify-items:center;gap:6px;text-align:center;border:0;background:transparent;padding:2px;color:#263e33;font-size:12px;line-height:1.2;overflow-wrap:anywhere}
+.lesson-stop:hover:not(:disabled){background:var(--tint)}
+.lesson-stop:disabled{opacity:1;color:#53665c}
+.stop-icon{width:46px;height:46px;display:grid;place-items:center;background:#eff3ef;color:#52685a;border-radius:50%;box-shadow:0 3px 0 #dce6df;font-size:20px}
+.lesson-stop[data-state="done"] .stop-icon{background:var(--tint);color:var(--accent);box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 23%,white)}
+.lesson-stop[data-state="next"] .stop-icon{background:var(--accent);color:white;box-shadow:0 3px 0 color-mix(in srgb,var(--accent) 75%,black),0 0 0 4px var(--tint)}
+.course-sources{margin-top:16px;color:#466457}
+
+.header-stats{display:flex;align-items:center;gap:6px}
+#streak-count{display:inline-flex;align-items:center;gap:4px;border-radius:99px;padding:7px 9px;background:#fff0df;color:#8b361b;font-size:14px;font-weight:800}
+#streak-count[data-active="false"]{background:#edf2ee;color:#51655a}
+.streak-card{display:grid;grid-template-columns:54px 1fr;align-items:center;gap:12px;padding:13px;margin:0 0 14px;border:1px solid #f6d9be;background:#fff4e6;color:#733219;border-radius:19px}
+.streak-card b,.streak-card span{display:block}
+.streak-card .streak-caption{font-size:13px;margin-top:3px}
+.streak-flame{display:grid!important;place-items:center;border-radius:16px;width:52px;height:52px;background:#ffe3c1;font-size:30px}
+.streak-earned .streak-flame{animation:streak-ignite .66s cubic-bezier(.18,.89,.34,1.2) both}
+@keyframes streak-ignite{0%{transform:scale(.45) translateY(8px);opacity:.25}65%{transform:scale(1.22) translateY(-4px)}100%{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.streak-earned .streak-flame{animation:none}}
+
+body{background:#eae8e1;color:#252821;font-family:system-ui,sans-serif}
+.shell{background:#fdfcf8}
+header{background:#fdfcf8;border-color:#e5e2d9}
+header b{color:#252821;font-family:Georgia,serif;font-size:26px;letter-spacing:-.035em}
+#score,#streak-count,#streak-count[data-active="false"]{background:none;border-radius:0;padding:4px;color:#484a40;font-variant-numeric:tabular-nums}
+#streak-count[data-active="true"]{color:#a53821}
+.course-hero{background:none;color:inherit;border-radius:0;padding:12px 4px 20px;border-bottom:1px solid #dedbd0}
+.course-hero small{color:#5b6054;font-weight:600;letter-spacing:0}
+.course-hero h1{font-family:Georgia,serif;font-size:clamp(33px,9vw,44px);font-weight:500;margin:7px 0 17px;overflow-wrap:anywhere}
+.course-hero #start{background:#234f3e;color:white;border-radius:8px}
+.course-hero #start:hover{background:#1a3f31;color:white}
+.chapter,.chapter[data-theme]{background:none;border:0;border-bottom:1px solid #dedbd0;border-radius:0;margin:0;padding:0;--accent:#234f3e}
+.chapter summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;min-height:60px;padding:9px 4px;font-size:17px;font-weight:700}
+.chapter summary::-webkit-details-marker{display:none}
+.chapter summary:focus-visible{outline:2px solid #234f3e;outline-offset:-2px}
+.chapter-count{margin-left:auto;color:#565d50;font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.chapter-arrow{color:#565d50;font-size:17px}
+.chapter[open] .chapter-arrow{transform:rotate(90deg)}
+.chapter-track{display:block;padding:0 0 10px}
+.lesson-stop{width:100%;min-height:48px;display:grid;grid-template-columns:26px 1fr;grid-template-rows:auto;align-items:center;justify-items:start;gap:8px;padding:8px;text-align:left;border-radius:6px;font-size:14px}
+.lesson-stop[data-state="next"]{background:#edf1e7;color:#234f3e;font-weight:750}
+.lesson-stop:hover:not(:disabled){background:#edf1e7}
+.lesson-stop .stop-icon,.lesson-stop[data-state] .stop-icon{width:26px;height:26px;background:none;box-shadow:none;color:inherit;border-radius:0;font-size:14px}
+.lesson-stop:disabled{color:#62685b}
+.course-sources{font-size:12px}
+.nav{background:#fdfcf8;border-color:#dedbd0}
+.nav button{background:transparent;border-radius:0;color:#52594d;border-top:2px solid transparent}
+.nav button[aria-current="page"]{background:transparent;border-top-color:#234f3e;color:#234f3e}
+
+body{background:#eaf0ec;color:#19372a;font-family:Arial,system-ui,sans-serif}
+.shell{background:#fff}
+header{background:#fff;border-bottom:0;padding:20px}
+header b{font-family:Arial,sans-serif;font-size:27px;font-weight:900;color:#168845;letter-spacing:-1.3px}
+#score,#streak-count,#streak-count[data-active="false"]{background:#f2f6f3;border:1px solid #e2eae4;border-radius:13px;padding:9px;font-size:13px}
+main{padding:10px 20px 110px}
+.course-hero{position:relative;overflow:hidden;background:#e9f9ee;border:1px solid #d3eddb;border-bottom:5px solid #bfdfc9;border-radius:26px;padding:24px;margin-bottom:23px;min-height:218px}
+.course-hero small{color:#37784b;font-size:14px}
+.course-hero h1{font-family:Arial,sans-serif;font-weight:850;font-size:37px;letter-spacing:-1.5px;max-width:70%;margin:12px 0 25px}
+.course-hero #start{position:relative;background:#21a452;border:1px solid #1c9148;border-bottom:5px solid #147338;color:#fff;border-radius:15px;min-height:55px;font-size:17px}
+.course-hero #start:hover{background:#199848}
+.course-hero #start:active{transform:translateY(3px);border-bottom-width:2px}
+.course-hero:after{content:'▶';position:absolute;right:24px;top:30px;width:62px;height:66px;display:grid;place-items:center;color:white;font-size:27px;background:#2eb765;border-radius:20px;transform:rotate(-12deg);box-shadow:4px 7px 0 #178c46,8px 12px 18px #14623226}
+.chapter,.chapter[data-theme]{border:1px solid #e1e9e3;border-bottom:4px solid #dbe5de;border-radius:20px;margin-bottom:15px;padding:0 13px;background:#fff}
+.chapter summary{min-height:74px;font-size:18px;gap:12px}
+.chapter summary:before{content:'✦';display:grid;place-items:center;flex:none;width:42px;height:42px;background:#e4f7e9;border-radius:13px;color:#23934d;box-shadow:0 3px 0 #c2e5cc;font-size:22px}
+.chapter-count{font-size:12px;background:#f2f6f3;border-radius:9px;padding:6px 8px}
+.chapter-track{padding-bottom:13px}
+.lesson-stop{padding:11px 8px;min-height:52px;gap:13px;border-radius:12px}
+.lesson-stop[data-state="next"]{background:#e8f8ed;border:1px solid #c6e7d1;border-bottom:3px solid #b3dac0}
+.lesson-stop .stop-icon,.lesson-stop[data-state] .stop-icon{border-radius:10px;background:#f0f5f1;box-shadow:0 2px 0 #d9e4dc;width:29px;height:29px}
+.lesson-stop[data-state="done"] .stop-icon{background:#def4e5;color:#218d49}
+.lesson-stop[data-state="next"] .stop-icon{background:#28a756;color:white;box-shadow:0 3px 0 #16823e}
+.nav{background:#fff;border-top:1px solid #e4ece6;padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+.nav button{border:0;border-radius:14px;font-size:12px;color:#6d8073;min-height:56px}
+.nav button[aria-current="page"]{border:0;background:#e5f7eb;color:#198a43}
+.nav strong{font-size:24px;margin-bottom:3px}
+.card{border:1px solid #e1eae3;border-bottom:4px solid #d8e5dc;border-radius:22px;box-shadow:none}
+.primary{background:#24a654;color:white;border-radius:13px;border-bottom:4px solid #177b3d}
+button:active:not(:disabled){transform:translateY(2px)}
+.course-sources{margin:20px 4px;color:#65776b}
+.nav{grid-template-columns:repeat(4,1fr)}.dashboard-links{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.dashboard-links button{min-height:95px;border-radius:18px;border:1px solid #dfebe2;border-bottom:4px solid #d4e3d9;padding:16px}.dashboard-links small{display:block;margin-top:8px;font-weight:400;letter-spacing:0;color:#526e5b}.dashboard-title{font-size:27px;letter-spacing:-.7px;margin:10px 0 20px}
+.profile-head{text-align:center;padding:22px 0}
+.profile-avatar{width:88px;height:88px;margin:auto;display:grid;place-items:center;background:#dff7e7;border:4px solid white;border-radius:28px;box-shadow:0 5px 0 #badfc8,0 10px 25px #155c2414;color:#168443;font-size:36px;font-weight:800;transform:rotate(-5deg)}
+.profile-head h1{font-size:27px;margin:20px 0 5px;letter-spacing:-.8px}
+.profile-head p{color:#607669;font-size:14px;margin:6px}
+.profile-head button{margin-top:10px;padding:8px 15px;min-height:40px;font-size:13px}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.profile-stat{border:1px solid #dfebe2;border-bottom:4px solid #d5e5da;border-radius:17px;padding:16px}
+.profile-stat b{display:block;font-size:25px;color:#168443}
+.profile-stat span{font-size:12px;color:#536b5b}
+.award{display:grid;grid-template-columns:48px 1fr;gap:14px;padding:17px 0;border-bottom:1px solid #e8eee9;align-items:center}
+.award-icon{display:grid;place-items:center;height:48px;border-radius:15px;background:#e5f8eb;box-shadow:0 4px 0 #c9e8d3;color:#208447;font-size:25px}
+.award[data-earned="false"] .award-icon{background:#f0f3f1;box-shadow:0 4px 0 #e0e7e2;color:#7b8980}
+.award b{font-size:15px}.award p{margin:5px 0;color:#617668;font-size:12px}
+.award progress{height:7px;display:block}
+.profile-edit[hidden]{display:none}.profile-edit{display:grid;gap:10px;margin:15px 0}
+.profile-edit input{font:inherit;padding:13px;border:2px solid #badac6;border-radius:12px;width:100%;box-sizing:border-box}
+.profile-stat,.award{animation:profile-in .28s ease both}
+.award:nth-child(2){animation-delay:.05s}.award:nth-child(3){animation-delay:.1s}
+@keyframes profile-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.profile-stat,.award{animation:none}}
+
+.level-chapter{border:0!important;padding:0!important;margin:0 0 28px!important;background:transparent!important}
+.level-heading{display:flex;align-items:center;gap:12px;padding:17px 20px;background:#e7f7ed;border:1px solid #cee9d8;border-bottom:4px solid #c3e2cf;border-radius:18px;font-size:19px;font-weight:800}
+.level-heading .chapter-count{background:white;color:#258348}
+.level-chapter .chapter-track{position:relative;display:flex;flex-direction:column;align-items:center;padding:30px 0 15px;gap:22px}
+.level-chapter .lesson-stop{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;width:140px;min-height:110px;padding:5px 0;gap:12px;border:0;background:transparent;font-size:13px;font-weight:700;z-index:1}
+.level-chapter .lesson-stop:nth-child(4n+1){margin-left:-100px}
+.level-chapter .lesson-stop:nth-child(4n+3){margin-left:100px}
+.level-chapter .lesson-stop:after{content:'';position:absolute;z-index:-1;top:73px;left:68px;width:5px;height:61px;background:repeating-linear-gradient(to bottom,#d8eadf 0 5px,transparent 5px 12px);transform-origin:top;transform:rotate(-37deg)}
+.level-chapter .lesson-stop:nth-child(4n+2):after{transform:rotate(-37deg)}
+.level-chapter .lesson-stop:nth-child(4n+3):after,.level-chapter .lesson-stop:nth-child(4n):after{transform:rotate(37deg)}
+.level-chapter .lesson-stop:last-child:after{display:none}
+.level-chapter .lesson-stop .stop-icon{width:70px;height:64px;border-radius:50%;font-size:29px;background:#e9efec;color:#8a9c90;box-shadow:0 7px 0 #cbd7ce,inset 0 3px 0 #f6faf7;border:2px solid #e0e8e2}
+.level-chapter .lesson-stop[data-state="done"] .stop-icon{background:#36af64;color:white;border-color:#2da35a;box-shadow:0 7px 0 #218246,inset 0 3px 0 #65c88a}
+.level-chapter .lesson-stop[data-state="next"] .stop-icon{background:#24a757;color:white;border-color:#20984e;box-shadow:0 7px 0 #157e3b,inset 0 3px 0 #5cc781,0 0 0 7px white,0 0 0 10px #98dfaf}
+.level-chapter .lesson-stop[data-state="open"] .stop-icon{background:#ecf7df;color:#57832a;border-color:#d7e9c2;box-shadow:0 7px 0 #bcd59c}
+.level-chapter .lesson-stop[data-state="next"]:before{content:'НАЧАТЬ';position:absolute;left:102px;top:20px;border-radius:9px;padding:8px;background:#fff;border:1px solid #d8e8dd;box-shadow:0 3px 0 #e6eee8;color:#208749;font-size:10px;letter-spacing:.6px;animation:level-bob 2s ease-in-out infinite}
+.level-chapter .lesson-stop:hover:not(:disabled){background:transparent}
+.level-chapter .lesson-stop:active:not(:disabled){transform:translateY(4px)}
+@keyframes level-bob{50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.level-chapter .lesson-stop[data-state="next"]:before{animation:none}}
+@media(max-width:360px){.level-chapter .lesson-stop[data-state="next"]:before{left:93px;font-size:9px;padding:6px}.level-chapter .lesson-stop:nth-child(4n+3){margin-left:70px}.level-chapter .lesson-stop:nth-child(4n+1){margin-left:-70px}}
+</style><div class="shell"><header><b>Салам!</b><div class="header-stats"><span id="streak-count"></span><span id="score"></span></div></header><main id="app"></main>
+<nav class="nav" aria-label="Разделы приложения">
+<button data-tab="home"><strong aria-hidden="true">⌂</strong>Главная</button>
+<button data-tab="course"><strong aria-hidden="true">▤</strong>Уроки</button>
+<button data-tab="review"><strong aria-hidden="true">↻</strong>Повторение</button>
+<button data-tab="progress"><strong aria-hidden="true">◉</strong>Профиль</button>
+</nav></div><script>
+const data=[
+['Приветствие','У двери','Салам!','Привет!'],
+['Ответ на приветствие','Хозяин встречает тебя','Ваалейкум салам!','И вам привет!'],
+['Как дела?','Вы начинаете разговор','Иш кин бугеб?','Как дела?'],
+['Всё хорошо','Ты отвечаешь хозяину','ЛъикӀ буго.','Хорошо.'],
+['Спасибо','Ты благодаришь хозяина','Баркала.','Спасибо.'],
+['Как тебя зовут?','Знакомство','Дуда цӀар щиб?','Как тебя зовут?'],
+['Меня зовут…','Знакомство','Дида цӀар буго…','Меня зовут…'],
+['Мама','Семья','Эбел','Мама'],
+['Папа','Семья','Эмен','Папа'],
+['Брат','Семья','Вац','Брат'],
+['Сестра','Семья','Яц','Сестра'],
+['Сколько тебе лет?','Знакомство','Дур чан сон?','Сколько тебе лет?']
+];
+const key='salam-course-v1';let s={xp:0,done:[],days:[],streakDays:[],badge:false},i=0,q=0,locked=false,mode='lesson';
+try{s={...s,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{}
+const app=document.querySelector('#app'),score=document.querySelector('#score');
+function dateKey(date) {
+  return [date.getFullYear(),date.getMonth()+1,date.getDate()].join('-');
+}
+
+function streak(today = new Date()) {
+  const days = new Set(s.streakDays);
+  const cursor = new Date(today);
+  const earnedToday = days.has(dateKey(cursor));
+  if (!earnedToday) cursor.setDate(cursor.getDate()-1);
+  let count = 0;
+  while (days.has(dateKey(cursor))) {
+    count++;
+    cursor.setDate(cursor.getDate()-1);
+  }
+  return {count,earnedToday};
+}
+
+function save(qualifies) {
+  const day = dateKey(new Date());
+  if (!s.days.includes(day)) s.days.push(day);
+  const extended = qualifies && !s.streakDays.includes(day);
+  if (extended) s.streakDays.push(day);
+  try { localStorage.setItem(key,JSON.stringify(s)); } catch {}
+  return extended;
+}
+
+function stats() {
+  score.textContent = s.xp + ' XP';
+  const counter = document.querySelector('#streak-count');
+  const {count,earnedToday} = streak();
+  if (counter) {
+    counter.title = 'Ударный режим';
+    counter.textContent = '🔥 ' + count;
+    counter.dataset.active = String(earnedToday);
+    counter.setAttribute('aria-label','Ударный режим. Дней подряд: ' + count);
+  }
+  const liveCard = document.querySelector('#streak-live');
+  if (liveCard) liveCard.innerHTML = streakCard();
+}
+
+function streakCard(earned = false) {
+  const {count,earnedToday} = streak();
+  const title = earned ? (count === 1 ? 'Огонь зажжён!' : 'Держишь темп!') : 'Ударный режим';
+  const digit = count % 10;
+  const unit = count % 100 >= 11 && count % 100 <= 14 ? 'дней' :
+    digit === 1 ? 'день' : digit >= 2 && digit <= 4 ? 'дня' : 'дней';
+  const status = earnedToday ? count + ' ' + unit + ' подряд · сегодня в зачёте' :
+    count ? count + ' ' + unit + ' подряд · пройди урок сегодня' : 'Пройди урок, чтобы зажечь огонь';
+  return '<div class="streak-card' + (earned ? ' streak-earned' : '') +
+    '"><span class="streak-flame" aria-hidden="true">🔥</span><div><b>' + title +
+    '</b><span class="streak-caption">' + status + '</span></div></div>';
+}
+
+function week(){const d=new Date(), offset=(d.getDay()+6)%7;let n=0;for(let j=0;j<=offset;j++){const a=new Date(d);a.setDate(d.getDate()-j);if(s.days.includes([a.getFullYear(),a.getMonth()+1,a.getDate()].join('-')))n++}return n}
+const chapters = [
+  {title:'В гостях', lessons:[0,1,2,3,4]},
+  {title:'Знакомство', lessons:[5,6,11]},
+  {title:'Семья', lessons:[7,8,9,10]}
+];
+const courseOrder = chapters.flatMap(chapter => chapter.lessons);
+
+function home() {
+  switchTab('course');
+  stats();
+  const next = courseOrder.find(id => !s.done.includes(id));
+  const current = chapters.find(chapter => chapter.lessons.includes(next));
+  const action = next === undefined ? 'К финальному диалогу' : s.done.length ? 'Продолжить' : 'Начать урок';
+  app.innerHTML = '<h1 class="dashboard-title">Уроки</h1><div id="route"></div>';
+  const route = document.querySelector('#route');
+  chapters.forEach(chapter => {
+    const section = document.createElement('section');
+    section.className = 'chapter level-chapter';
+    section.open = chapter === current || (!current && chapter === chapters[0]);
+    const completed = chapter.lessons.filter(id => s.done.includes(id)).length;
+    section.innerHTML = '<div class="level-heading"><span>' + chapter.title + '</span><span class="chapter-count">' +
+      completed + ' / ' + chapter.lessons.length +
+      '</span></div>';
+    const track = document.createElement('div');
+    track.className = 'chapter-track';
+    for (const id of chapter.lessons) {
+      const state = s.done.includes(id) ? 'done' : id === next ? 'next' : 'locked';
+      addStop(track,data[id][0],state,'▶',() => start('lesson',id));
+    }
+    if (chapter === chapters[0]) {
+      const available = chapter.lessons.every(id => s.done.includes(id));
+      addStop(track,'Финальный диалог',s.badge ? 'done' : available ? 'open' : 'locked','★',() => start('final',0));
+    }
+    section.append(track);
+    route.append(section);
+  });
+}
+
+function dashboard() {
+  switchTab('home');
+  stats();
+  const next = courseOrder.find(id => !s.done.includes(id));
+  const current = chapters.find(chapter => chapter.lessons.includes(next));
+  const action = next === undefined ? 'К финальному диалогу' : s.done.length ? 'Продолжить' : 'Начать урок';
+  app.innerHTML = '<section class="hero course-hero"><small>' +
+    (current ? current.title : 'Аварский с нуля') + '</small><h1>' +
+    (next === undefined ? 'Финальный диалог' : data[next][0]) +
+    '</h1><button class="primary" id="start">' + action + '<span aria-hidden="true">→</span></button></section>' +
+    '<div id="streak-live">' + streakCard() + '</div><div class="dashboard-links"><button id="all-lessons">Все уроки<small>' + s.done.length + ' из ' + data.length + ' пройдено</small></button><button id="quick-review">Повторение<small>Закрепи знакомые фразы</small></button></div>' +
+    '<footer class="course-sources"><details><summary>Источники курса</summary><p><a href="https://dokumen.pub/7b7d56e07c7db73ed34f8f0a6c27bf51.html">Самоучитель</a> · <a href="https://lingvoforum.net/index.php?topic=56926.0">Разговорник</a></p></details></footer>';
+  document.querySelector('#start').onclick = () => next === undefined ? start('final',0) : start('lesson',next);
+
+  document.querySelector('#all-lessons').onclick = home;
+  document.querySelector('#quick-review').onclick = reviewScreen;
+}
+
+function addStop(track,title,state,symbol,open) {
+  const button = document.createElement('button');
+  const status = {done:'пройдено',next:'следующий урок',open:'доступно',locked:'закрыто'};
+  button.className = 'lesson-stop';
+  button.dataset.state = state;
+  button.disabled = state === 'locked';
+  button.setAttribute('aria-label',title + ', ' + status[state]);
+  button.innerHTML = '<span class="stop-icon" aria-hidden="true">' +
+    (state === 'done' ? '✓' : state === 'locked' ? '•' : symbol) + '</span><span>' + title + '</span>';
+  button.onclick = open;
+  track.append(button);
+}
+
+function animateScreen() {
+  window.scrollTo(0, 0);
+  app.classList.remove('enter');
+  requestAnimationFrame(() => app.classList.add('enter'));
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('[data-tab]').forEach(button => {
+    if (button.dataset.tab === tab) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
+  animateScreen();
+}
+
+function reviewScreen() {
+  switchTab('review');
+  app.innerHTML = '<section class="card"><h1>Повторение</h1><p>' +
+    (s.done.length ? 'Вспомни фразы из пройденных уроков. За тренировку ты получишь 5 очков.' : 'Пройди первый урок, чтобы открыть тренировку.') +
+    '</p><button id="practice" class="primary">' + (s.done.length ? 'Начать тренировку' : 'К урокам') + '</button></section>';
+  document.querySelector('#practice').onclick = () => s.done.length ? start('review', 0) : home();
+}
+
+function progressScreen() {
+  switchTab('progress');
+  const current = streak().count;
+  const best = Math.max(0,...(s.streakDays || []).map(day => {
+    const [year,month,date] = day.split('-').map(Number);
+    return streak(new Date(year,month-1,date)).count;
+  }));
+  const awards = [
+    ['✦','Первый шаг','Пройди первый урок',s.done.length,1],
+    ['▤','Вошёл во вкус','Пройди 5 разных уроков',s.done.length,5],
+    ['★','Могу начать разговор','Заверши финальный диалог',Number(s.badge),1],
+    ['🔥','Неделя в ритме','Собери серию из 7 дней',best,7],
+    ['◆','Вся программа','Пройди все 12 уроков',s.done.length,12]
+  ];
+  app.innerHTML = '<section class="profile-head"><div class="profile-avatar" id="avatar"></div>' +
+    '<h1 id="nickname"></h1><p>Изучаю аварский</p><button id="edit-name">Изменить никнейм</button>' +
+    '<form id="name-form" class="profile-edit" hidden><label for="name-input">Никнейм</label>' +
+    '<input id="name-input" maxlength="24" required autocomplete="nickname"><button class="primary" type="submit">Сохранить</button>' +
+    '<button type="button" id="cancel-name">Отмена</button><span id="name-message" role="status"></span></form></section>' +
+    '<div class="profile-stats">' +
+    [[s.done.length,'Уроков пройдено'],[s.xp,'Всего очков'],[current,'Дней подряд'],[best,'Лучшая серия']].map(
+      ([value,label]) => '<div class="profile-stat"><b>'+value+'</b><span>'+label+'</span></div>').join('') +
+    '</div><div id="streak-live">' + streakCard() + '</div><h2>Достижения</h2>' +
+    awards.map(([icon,title,description,value,target]) => '<div class="award" data-earned="'+(value>=target)+'">' +
+      '<div class="award-icon" aria-hidden="true">'+icon+'</div><div><b>'+title+'</b><p>'+description+' · '+
+      (value>=target?'Получено':Math.min(value,target)+' / '+target)+'</p><progress aria-label="'+title+'" max="'+target+'" value="'+Math.min(value,target)+'"></progress></div></div>').join('');
+  const name = s.nickname || 'Ученик';
+  document.querySelector('#nickname').textContent = name;
+  document.querySelector('#avatar').textContent = Array.from(name)[0].toUpperCase();
+  const form = document.querySelector('#name-form');
+  const input = document.querySelector('#name-input');
+  input.value = name;
+  document.querySelector('#edit-name').onclick = () => {form.hidden=false;input.focus();};
+  document.querySelector('#cancel-name').onclick = () => {form.hidden=true;};
+  form.onsubmit = event => {
+    event.preventDefault();
+    const nickname = input.value.trim();
+    if (!nickname) {input.focus();return;}
+    const updated = {...s,nickname};
+    try {localStorage.setItem(key,JSON.stringify(updated));}
+    catch {document.querySelector('#name-message').textContent='Не удалось сохранить. Попробуй ещё раз.';return;}
+    s=updated;
+    progressScreen();
+  };
+}
+
+const lessonGroups = [
+  [0,1,2], [0,1,4], [2,3,4], [0,2,3], [1,3,4],
+  [0,5,6], [5,6,11], [7,8,5], [8,7,6], [9,10,8], [10,9,7], [5,11,6]
+];
+let lessonSteps = [];
+
+function start(m,j) {
+  mode=m;
+  i=j;
+  q=0;
+  if (m === 'lesson') {
+    const group = lessonGroups[j];
+    lessonSteps = [
+      ...group.map(id => ({id,type:'meaning'})),
+      ...group.map(id => ({id,type:data[id][2].trim().includes(' ') ? 'build' : 'av'}))
+    ];
+  }
+  show();
+}
+document.querySelector('[data-tab="home"]').onclick = dashboard;
+document.querySelector('[data-tab="course"]').onclick = home;
+document.querySelector('[data-tab="review"]').onclick = reviewScreen;
+document.querySelector('[data-tab="progress"]').onclick = progressScreen;
+const scenes=['Ты подходишь к двери. Поздоровайся.','Хозяин: «Салам!» Ответь ему.','Вы начинаете разговор. Спроси, как дела.','Хозяин: «Иш кин бугеб?» Ответь, что всё хорошо.','Хозяин угощает тебя. Поблагодари его.'];
+function shuffle(items) {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [result[index], result[other]] = [result[other], result[index]];
+  }
+  return result;
+}
+
+let audioContext;
+function playSound(notes) {
+  const Audio = window.AudioContext || window.webkitAudioContext;
+  if (!Audio) return;
+  try {
+    audioContext ??= new Audio();
+    const play = () => {
+      const start = audioContext.currentTime;
+      notes.forEach((pitch, index) => {
+        const time = start + index * 0.09;
+        const tone = audioContext.createOscillator();
+        const volume = audioContext.createGain();
+        tone.type = 'sine';
+        tone.frequency.value = pitch;
+        volume.gain.setValueAtTime(0.001, time);
+        volume.gain.exponentialRampToValueAtTime(0.12, time + 0.018);
+        volume.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+        tone.connect(volume).connect(audioContext.destination);
+        tone.start(time);
+        tone.stop(time + 0.21);
+      });
+    };
+    if (audioContext.state === 'running') play();
+    else audioContext.resume().then(play).catch(() => {});
+  } catch {
+    // Sound is optional when the browser cannot play audio.
+  }
+}
+
+function show() {
+  animateScreen();
+  locked = false;
+  const isLesson = mode === 'lesson';
+  const ids = mode === 'review' ? [...s.done].sort((a,b)=>a-b) : [0,1,2,3,4];
+  const step = isLesson ? lessonSteps[q] : {id:ids[q],type:'av'};
+  const total = isLesson ? lessonSteps.length : ids.length;
+  const row = data[step.id];
+  const meaning = step.type === 'meaning';
+  const build = step.type === 'build';
+  const label = isLesson ? data[i][0] : mode === 'final' ? 'Финальный диалог' : 'Повторение';
+  const title = mode === 'final' ? scenes[q] : row[meaning ? 2 : 3];
+  const instruction = build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
+  app.innerHTML = '<button id="back">← ' + (mode === 'review' ? 'Повторение' : 'Уроки') +
+    '</button><section class="card lesson-card"><small>' + label + ' · ' + (q+1) + ' из ' + total +
+    '</small><progress max="' + total + '" value="' + q + '" aria-label="Прогресс задания"></progress>' +
+    '<p class="muted">' + instruction + '</p><h2 class="phrase">' + title +
+    '</h2><div id="choices"></div><p id="feedback" role="status"></p>' +
+    '<button class="primary" id="next" hidden>Дальше →</button></section>';
+  document.querySelector('#back').onclick = mode === 'review' ? reviewScreen : home;
+  const choices = document.querySelector('#choices');
+  const feedback = document.querySelector('#feedback');
+  const next = document.querySelector('#next');
+
+  function accept() {
+    locked = true;
+    playSound([660, 880]);
+    feedback.className = 'good';
+    feedback.textContent = 'Верно! ' + row[2] + ' — ' + row[3];
+    next.hidden = false;
+    next.focus({preventScroll:true});
+    next.onclick = () => {
+      q++;
+      if (q < total) show();
+      else finish();
+    };
+  }
+
+  if (build) {
+    const words = row[2].split(' ');
+    let picked = [];
+    choices.innerHTML = '<div id="tile-answer" class="tile-answer" aria-label="Твоя фраза"></div>' +
+      '<div id="tile-bank" class="tile-bank" aria-label="Слова"></div><button id="check">Проверить</button>';
+    const answer = document.querySelector('#tile-answer');
+    const bank = document.querySelector('#tile-bank');
+    const check = document.querySelector('#check');
+    check.disabled = true;
+    for (const word of shuffle(words)) {
+      const button = document.createElement('button');
+      button.textContent = word;
+      bank.append(button);
+      button.onclick = () => {
+        if (locked) return;
+        if (picked.includes(button)) {
+          picked = picked.filter(tile => tile !== button);
+          bank.append(button);
+        } else {
+          picked.push(button);
+          answer.append(button);
+        }
+        feedback.textContent = '';
+        check.disabled = picked.length !== words.length;
+      };
+    }
+    check.onclick = () => {
+      if (picked.map(tile => tile.textContent).join(' ') === row[2]) {
+        check.hidden = true;
+        accept();
+      } else {
+        feedback.className = 'bad';
+        feedback.textContent = 'Проверь порядок. Нажми на слово, чтобы вернуть его в набор.';
+      }
+    };
+    return;
+  }
+
+  choices.className = 'stack';
+  const column = meaning ? 3 : 2;
+  const distractors = shuffle(data.filter(item => item !== row)).slice(0,2);
+  for (const option of shuffle([row,...distractors])) {
+    const button = document.createElement('button');
+    button.textContent = option[column];
+    choices.append(button);
+    button.onclick = () => {
+      if (locked) return;
+      if (option === row) accept();
+      else {
+        feedback.className = 'bad';
+        feedback.textContent = 'Попробуй ещё раз.';
+        button.disabled = true;
+      }
+    };
+  }
+}
+function finish(){playSound([523, 659, 784, 1047]);animateScreen();let points=5,title='Повторение пройдено';if(mode==='lesson'){title='Урок пройден';if(!s.done.includes(i)){s.done.push(i);points=10}}if(mode==='final'){title='Диалог завершён';if(!s.badge)points=25;s.badge=true}s.xp+=points;const extended=save(mode!=='review');stats();app.innerHTML=(extended?streakCard(true):'')+'<section class="hero"><small>+'+points+' ОЧКОВ</small><h2>'+title+'</h2><p>'+(mode==='final'?'🏅 Твой значок: «Могу начать разговор»':'Ещё один шаг к разговору на аварском.')+'</p><button class="primary" id="home">Продолжить →</button></section>';document.querySelector('#home').onclick=mode==='review'?reviewScreen:home}
+dashboard();
+window.setInterval?.(stats,30000);
+document.addEventListener?.('visibilitychange',stats);
+</script></html>
