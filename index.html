@@ -20,6 +20,20 @@ body.lesson-flow .nav,body.reward-flow .nav{display:none}body.lesson-flow header
 @media(max-width:360px){.scene-label{display:none}.journey-meta{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.steam{opacity:.15}}
 .reward-actions{display:grid;grid-template-columns:1fr 1.65fr;gap:10px;width:100%;margin-top:auto}.reward-actions button{margin:0;padding-inline:8px;font-size:14px}.reward-actions .icon{width:16px;height:16px}
+.route-landscape{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;margin-top:12px;background:linear-gradient(#f3faf5,#deeee1)}
+.route-scenery{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.route-scenery .landscape{position:absolute;bottom:0;width:100%;height:auto;opacity:.42}
+.trail-plate,.trail-board{position:absolute;display:flex;align-items:center;justify-content:center;gap:2px;width:66px;height:44px;transform:rotate(-13deg)}
+.trail-plate{right:5%;top:12%;border-radius:50%;background:#fffaf0;border:3px solid #badbc6;box-shadow:0 4px #bbd6bf}
+.trail-plate i{width:15px;height:16px;border-radius:4px;background:#f4d9a6;box-shadow:0 3px #d2aa73;transform:rotate(15deg)}
+.trail-board{left:5%;top:46%;border-radius:12px;background:#e9c994;box-shadow:0 4px #c99c63;transform:rotate(12deg)}
+.trail-board i{width:11px;height:27px;border-radius:5px;background:linear-gradient(100deg,#a35c49,#773b32);border:1px solid #8b4c3d;transform:rotate(18deg)}
+.route-landscape .lesson-stop>span:last-child{background:#f7fcf8eb;border-radius:9px;padding:2px 6px}
+.pair-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pair-column{display:grid;grid-auto-rows:1fr;gap:10px}
+.pair-column button{min-height:58px;padding:8px;overflow-wrap:anywhere;background:#fff;border:1px solid #cde2d5;border-radius:14px;box-shadow:0 3px #dcebe0;color:#213f34;font-weight:800}
+.pair-column button[aria-pressed=true]{background:#e5f3fe;border-color:#5294bf;box-shadow:0 3px #a5cce5}
+.pair-column button.matched{background:#e3f3e8;color:#24764e;box-shadow:none;opacity:.65}
 
 </style></head><body><div class="shell"><header><button class="brand" aria-label="Салам! На главную"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#16855c"/><path d="m6 23 7-14 5 8 3-5 5 11H6Z" fill="#eaf6d8"/><path d="m10 15 3 2 3-3" stroke="#16855c" stroke-width="1.7"/></svg><span>салам<span style="color:#8ab95d">!</span></span></button><div class="header-stats"><button class="stat-pill" type="button" id="streak-count"></button><span class="stat-pill" id="score"></span></div></header><main id="app"></main><nav class="nav" aria-label="Разделы приложения"><button data-tab="home">Главная</button><button data-tab="course">Уроки</button><button data-tab="review">Повторение</button><button data-tab="tasks">Задания</button><button data-tab="progress">Профиль</button></nav></div><script>
 function icon(name, extra = '') {
@@ -203,7 +217,7 @@ function home() {
   const activeIndex=Math.max(0,chapters.findIndex(c=>c.lessons.includes(next)));
   const index=selectedChapter===null?activeIndex:selectedChapter;
   const chapter=chapters[index],completed=chapter.lessons.filter(id=>s.done.includes(id)).length;
-  app.innerHTML='<div class="course-intro"><div><div class="eyebrow">АВАРСКИЙ С НУЛЯ</div><h1>Твой путь</h1><p>'+totalDone()+' из '+courseOrder.length+' уроков пройдено</p></div><span class="round-icon">'+icon('mountain')+'</span></div><div class="chapter-tabs" aria-label="Разделы курса">'+chapters.map((c,n)=>'<button data-chapter="'+n+'" aria-current="'+(n===index)+'">'+(n+1)+'. '+c.title+'</button>').join('')+'</div><section class="level-chapter"><div class="chapter-banner"><div class="eyebrow">РАЗДЕЛ '+(index+1)+' · '+completed+'/'+chapter.lessons.length+'</div><h2>'+chapter.title+'</h2><p>'+chapterDescriptions[index]+'</p><span class="banner-symbol">'+icon(chapterIcon(index))+'</span><div class="chapter-meter"><span style="width:'+(completed/chapter.lessons.length*100)+'%"></span></div></div><div class="chapter-track" id="route"></div></section><div class="route-note">'+icon(completed===chapter.lessons.length?'check':'leaf')+'<span>'+(completed===chapter.lessons.length?'Раздел пройден! К любому уроку можно вернуться.':'Каждый шаг открывает следующий. Иди в своём темпе.')+'</span></div>'+(index<chapters.length-1?'<button class="chapter-next" id="next-chapter"><span class="round-icon">'+icon(chapterIcon(index+1))+'</span><span><small>ДАЛЬШЕ НА ПУТИ</small>'+chapters[index+1].title+'</span>'+icon('arrow')+'</button>':'<p class="trail-footer">Здесь заканчивается курс. А разговор — только начинается.</p>');
+  app.innerHTML='<div class="course-intro"><div><div class="eyebrow">АВАРСКИЙ С НУЛЯ</div><h1>Твой путь</h1><p>'+totalDone()+' из '+courseOrder.length+' уроков пройдено</p></div><span class="round-icon">'+icon('mountain')+'</span></div><div class="chapter-tabs" aria-label="Разделы курса">'+chapters.map((c,n)=>'<button data-chapter="'+n+'" aria-current="'+(n===index)+'">'+(n+1)+'. '+c.title+'</button>').join('')+'</div><section class="level-chapter"><div class="chapter-banner"><div class="eyebrow">РАЗДЕЛ '+(index+1)+' · '+completed+'/'+chapter.lessons.length+'</div><h2>'+chapter.title+'</h2><p>'+chapterDescriptions[index]+'</p><span class="banner-symbol">'+icon(chapterIcon(index))+'</span><div class="chapter-meter"><span style="width:'+(completed/chapter.lessons.length*100)+'%"></span></div></div><div class="route-landscape"><div class="route-scenery" aria-hidden="true">'+landscape()+'<span class="trail-plate"><i></i><i></i><i></i></span><span class="trail-board"><i></i><i></i><i></i></span></div><div class="chapter-track" id="route"></div></div></section><div class="route-note">'+icon(completed===chapter.lessons.length?'check':'leaf')+'<span>'+(completed===chapter.lessons.length?'Раздел пройден! К любому уроку можно вернуться.':'Каждый шаг открывает следующий. Иди в своём темпе.')+'</span></div>'+(index<chapters.length-1?'<button class="chapter-next" id="next-chapter"><span class="round-icon">'+icon(chapterIcon(index+1))+'</span><span><small>ДАЛЬШЕ НА ПУТИ</small>'+chapters[index+1].title+'</span>'+icon('arrow')+'</button>':'<p class="trail-footer">Здесь заканчивается курс. А разговор — только начинается.</p>');
   const route=document.querySelector('#route');
   chapter.lessons.forEach(id=>addStop(route,data[id][0],s.done.includes(id)?'done':id===next?'next':'locked',id===26?'trophy':chapterIcon(index),()=>start('lesson',id)));
   if(index===0)addStop(route,'Живой диалог',s.badge?'done':completed===chapter.lessons.length?'open':'locked','chat',()=>start('final',0));
@@ -327,6 +341,15 @@ function start(m,j) {
       ...shuffle(group).map((id,index) => ({id,type:index === 0 ? 'recall' : data[id][2].includes(' ') ? 'build' : 'av'}))
     ];
   }
+  if (m === 'lesson' && j !== 26) {
+    const pairs = [];
+    for (const id of shuffle(lessonGroups[j])) {
+      if (pairs.some(other => data[other][2] === data[id][2] || data[other][3] === data[id][3])) continue;
+      pairs.push(id);
+      if (pairs.length === 3) break;
+    }
+    if (pairs.length >= 2) lessonSteps.push({id: pairs[0], type: 'pairs', pairs});
+  }
   show();
 }
 document.querySelector('[data-tab="home"]').onclick = dashboard;
@@ -385,8 +408,9 @@ function show() {
   const meaning = step.type === 'meaning';
   const build = step.type === 'build';
   const label = isLesson ? data[i][0] : mode === 'final' ? 'Финальный диалог' : 'Повторение';
-  const title = mode === 'final' ? scenes[q] : row[meaning ? 2 : 3];
-  const instruction = step.type === 'recall' ? 'Напиши по-аварски' : build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
+  const pairing = step.type === 'pairs';
+  const title = pairing ? 'Найди пары' : mode === 'final' ? scenes[q] : row[meaning ? 2 : 3];
+  const instruction = pairing ? 'Нажми на аварское слово или фразу и на перевод' : step.type === 'recall' ? 'Напиши по-аварски' : build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
   app.innerHTML = '<div class="lesson-top"><button id="back" aria-label="Выйти из урока">'+icon('close')+'</button><progress max="'+total+'" value="'+q+'" aria-label="Прогресс задания"></progress><span>'+(q+1)+' / '+total+'</span></div><section class="lesson-card"><small>'+label+'</small><p class="muted">'+instruction+'</p><div class="prompt-panel"><h2 class="phrase">'+title+'</h2></div><div id="choices"></div><p id="feedback" role="status"></p><button class="primary" id="next" hidden>Продолжить'+icon('arrow')+'</button></section>';
   document.querySelector('#back').onclick = mode === 'review' ? reviewScreen : home;
   const choices = document.querySelector('#choices');
@@ -405,6 +429,54 @@ function show() {
       if (q < total) show();
       else finish();
     };
+  }
+
+  if (pairing) {
+    choices.className = 'pair-grid';
+    const selected = [null, null];
+    const cards = new Map();
+    const remaining = new Set(step.pairs);
+    [2, 3].forEach((column, side) => {
+      const list = document.createElement('div');
+      list.className = 'pair-column';
+      list.setAttribute('role', 'group');
+      list.setAttribute('aria-label', side === 0 ? 'Аварский' : 'Переводы');
+      choices.append(list);
+      for (const id of shuffle(step.pairs)) {
+        const card = document.createElement('button');
+        card.textContent = data[id][column];
+        card.setAttribute('aria-pressed', 'false');
+        cards.set(side + ':' + id, card);
+        list.append(card);
+        card.onclick = () => {
+          const previous = selected[side];
+          if (previous !== null) cards.get(side + ':' + previous).setAttribute('aria-pressed', 'false');
+          selected[side] = previous === id ? null : id;
+          card.setAttribute('aria-pressed', String(selected[side] !== null));
+          if (selected.includes(null)) return;
+          if (selected[0] === selected[1]) {
+            remaining.delete(id);
+            for (const n of [0, 1]) {
+              const matched = cards.get(n + ':' + id);
+              matched.disabled = true;
+              matched.classList.add('matched');
+            }
+            feedback.className = 'good';
+            feedback.textContent = 'Верная пара!';
+          } else {
+            feedback.className = 'bad';
+            feedback.textContent = 'Эти карточки не пара. Попробуй ещё раз.';
+          }
+          selected.forEach((value, n) => cards.get(n + ':' + value).setAttribute('aria-pressed', 'false'));
+          selected.fill(null);
+          if (!remaining.size) {
+            accept();
+            feedback.textContent = 'Все пары найдены!';
+          }
+        };
+      }
+    });
+    return;
   }
 
   if (step.type === 'recall') {
