@@ -681,7 +681,7 @@ function playSound(notes) {
 function filmScene(index, total) {
   const captions = ['У порога','Хозяин встречает гостя','Начало разговора','Ответ хозяину','Угощение'];
   const clip = filmClips[index];
-  return '<figure class="dialogue-film"><video controls autoplay loop muted playsinline preload="metadata" aria-label="'+captions[index]+'" src="'+clip+'"></video><figcaption>Кадр '+(index+1)+' / '+total+' · '+captions[index]+'</figcaption>'+([0,1,3].includes(index)?'<button type="button" class="film-listen">🔊 Включить звук</button>':'')+'</figure>';
+  return '<figure class="dialogue-film"><video controls autoplay loop playsinline preload="metadata" aria-label="'+captions[index]+'" src="'+clip+'"></video><figcaption>Кадр '+(index+1)+' / '+total+' · '+captions[index]+'</figcaption>'+'</figure>';
 }
 function show() {
   animateScreen();
@@ -699,13 +699,12 @@ function show() {
   const instruction = pairing ? 'Нажми на аварское слово или фразу и на перевод' : step.type === 'recall' ? 'Напиши по-аварски' : build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
   app.innerHTML = '<div class="lesson-top"><button id="back" aria-label="Выйти из урока">'+icon('close')+'</button><progress max="'+total+'" value="'+q+'" aria-label="Прогресс задания"></progress><span>'+(q+1)+' / '+total+'</span></div><section class="lesson-card"><small>'+label+'</small><p class="muted">'+instruction+'</p>'+(mode==='final'?filmScene(q,total):'')+'<div class="prompt-panel"><h2 class="phrase">'+title+'</h2></div><div id="choices"></div><p id="feedback" role="status"></p><button class="primary" id="next" hidden>Продолжить'+icon('arrow')+'</button></section>';
   document.querySelector('#back').onclick = mode === 'review' ? reviewScreen : home;
-  const listen = app.querySelector(".film-listen");
-  if (listen) listen.onclick = () => {
-    const clip = app.querySelector(".dialogue-film video");
-    clip.muted = false;
-    clip.currentTime = 0;
+  const clip = app.querySelector(".dialogue-film video");
+  if (clip) clip.play().catch(error => {
+    if (error.name !== "NotAllowedError" || !clip.isConnected) return;
+    clip.muted = true;
     clip.play().catch(() => {});
-  };
+  });
   const choices = document.querySelector("#choices");
   const feedback = document.querySelector('#feedback');
   const next = document.querySelector('#next');
