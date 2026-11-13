@@ -253,6 +253,11 @@ function showFriends() {
 
 
 
+function renderProfileAwards(lessons, best, dialogue, heading = 'Достижения') {
+  const awards=[['leaf','Первый шаг','Пройди первый урок',lessons,1],['book','Вошёл во вкус','Пройди 5 разных уроков',lessons,5],['chat','Начало разговора','Заверши финальный диалог',dialogue == null ? null : Number(dialogue),1],['bolt','Неделя в ритме','Собери серию из 7 дней',best,7],['mountain','На вершине','Пройди все уроки',lessons,courseOrder.length]];
+  return '<div class="section-heading"><h2>'+heading+'</h2><span>'+awards.filter(a=>a[3]>=a[4]).length+'/'+awards.length+'</span></div><div class="awards-grid">'+awards.map(([symbol,title,description,value,target])=>'<div class="award" data-earned="'+(value>=target)+'"><div class="award-icon">'+icon(symbol)+'</div><div><b>'+title+'</b><p>'+description+'<br>'+(value==null?'Нет данных':value>=target?'Получено':Math.min(value,target)+' / '+target)+'</p><progress aria-label="'+title+'" max="'+target+'" value="'+Math.min(value,target)+'"></progress></div></div>').join('')+'</div>';
+}
+
 function icon(name, extra = '') {
   const paths = {
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
