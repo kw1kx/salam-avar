@@ -36,6 +36,129 @@ body.lesson-flow .nav,body.reward-flow .nav{display:none}body.lesson-flow header
 .pair-column button.matched{background:#e3f3e8;color:#24764e;box-shadow:none;opacity:.65}
 
 </style></head><body><div class="shell"><header><button class="brand" aria-label="Салам! На главную"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#16855c"/><path d="m6 23 7-14 5 8 3-5 5 11H6Z" fill="#eaf6d8"/><path d="m10 15 3 2 3-3" stroke="#16855c" stroke-width="1.7"/></svg><span>салам<span style="color:#8ab95d">!</span></span></button><div class="header-stats"><button class="stat-pill" type="button" id="streak-count"></button><span class="stat-pill" id="score"></span></div></header><main id="app"></main><nav class="nav" aria-label="Разделы приложения"><button data-tab="home">Главная</button><button data-tab="course">Уроки</button><button data-tab="review">Повторение</button><button data-tab="tasks">Задания</button><button data-tab="progress">Профиль</button></nav></div><script>
+function showFriends() {
+  const key = 'salam-friends-account';
+  let account;
+  try { account = JSON.parse(localStorage.getItem(key)); } catch {}
+  app.innerHTML = pageHeading('ПРОФИЛЬ','Друзья') + `
+    <button id="friends-back">← В профиль</button>
+    <section class="profile-edit">
+      <p id="friends-status" role="status"></p>
+      <form id="friends-form">
+        <label for="friend-name"></label>
+        <input id="friend-name" placeholder="@username" maxlength="25" required autocomplete="off">
+        <button class="primary" type="submit"></button>
+      </form>
+      <div id="friends-result"></div>
+      <div id="friends-list"></div>
+    </section>`;
+  app.querySelector('#friends-back').onclick = progressScreen;
+  const panel = app.querySelector('.profile-edit');
+  const status = panel.querySelector('#friends-status');
+  const form = panel.querySelector('form');
+  const input = panel.querySelector('input');
+  const result = panel.querySelector('#friends-result');
+  const list = panel.querySelector('#friends-list');
+  async function call(action, body, query = '') {
+    const endpoint = location.origin === 'https://kw1kx.github.io' ? 'https://salam-friends.kartofkagig.workers.dev' : '';
+    const response = await fetch(endpoint + '/api/friends/' + action + query, {
+      method: body ? 'POST' : 'GET',
+      headers: {'Content-Type':'application/json', ...(account ? {Authorization:'Bearer ' + account.token} : {})},
+      body: body && JSON.stringify(body)
+    });
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      throw Error('Сервис друзей пока не подключён на этом сайте.');
+    }
+    const data = await response.json();
+    if (!response.ok) throw Error(data.error || 'Не удалось выполнить запрос.');
+    return data;
+  }
+  async function run(button, action) {
+    button.disabled = true;
+    status.textContent = '';
+    try { await action(); } catch (error) {
+      status.textContent = error instanceof TypeError ? 'Не удалось подключиться к сервису друзей.' : error.message;
+    } finally { button.disabled = false; }
+  }
+  function button(label, action) {
+    const node = document.createElement('button');
+    node.type = 'button';
+    node.textContent = label;
+    node.onclick = () => run(node, action);
+    return node;
+  }
+  function profile(person) {
+    result.replaceChildren();
+    const name = document.createElement('h2');
+    name.textContent = person.nickname;
+    const handle = document.createElement('p');
+    handle.textContent = '@' + person.username;
+    result.append(name, handle);
+    return result;
+  }
+  async function refresh() {
+    const {me, rows} = await call('list');
+    list.replaceChildren();
+    const own = document.createElement('p');
+    own.textContent = 'Твой юзернейм: @' + me.username;
+    list.append(own);
+    const groups = [
+      ['Друзья', rows.filter(row => row.accepted)],
+      ['Входящие заявки', rows.filter(row => !row.accepted && row.sender !== me.username)],
+      ['Отправленные заявки', rows.filter(row => !row.accepted && row.sender === me.username)]
+    ];
+    for (const [title, people] of groups) {
+      const heading = document.createElement('h2');
+      heading.textContent = title;
+      list.append(heading);
+      if (!people.length) {
+        const empty = document.createElement('p');
+        empty.textContent = 'Пока пусто';
+        list.append(empty);
+      }
+      for (const person of people) {
+        const row = document.createElement('div');
+        row.append(button(person.nickname + ' · @' + person.username, () => profile(person)));
+        if (!person.accepted && person.sender !== me.username) {
+          for (const [label, action] of [['Принять','accept'],['Отклонить','decline']]) {
+            row.append(button(label, async () => {
+              await call(action,{username:person.username});
+              await refresh();
+            }));
+          }
+        }
+        list.append(row);
+      }
+    }
+  }
+  const submit = form.querySelector('button');
+  form.querySelector('label').textContent = account ? 'Найти по @юзернейму' : 'Выбери уникальный @юзернейм';
+  submit.textContent = account ? 'Найти' : 'Создать профиль';
+  form.onsubmit = event => {
+    event.preventDefault();
+    run(submit, async () => {
+      if (!account) {
+        account = await call('register',{username:input.value,nickname:s.nickname});
+        localStorage.setItem(key, JSON.stringify(account));
+        showFriends();
+        return;
+      }
+      result.replaceChildren();
+      const person = await call('profile', null, '?username=' + encodeURIComponent(input.value.trim()));
+      const card = profile(person);
+      if (person.username !== account.username) {
+        card.append(button('Отправить заявку', async () => {
+          await call('request',{username:person.username});
+          card.replaceChildren(document.createTextNode('Заявка отправлена.'));
+          await refresh();
+        }));
+      }
+    });
+  };
+  if (account) run(submit, refresh);
+}
+
+
 function icon(name, extra = '') {
   const paths = {
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
@@ -315,6 +438,10 @@ function progressScreen() {
   app.innerHTML=pageHeading('ТВОЯ ИСТОРИЯ','Профиль')+'<section class="profile-head"><div class="profile-cover">'+landscape()+'</div><div class="profile-avatar" id="avatar"></div><h1 id="nickname"></h1><p>Изучаю аварский · с каждым днём ближе</p><button id="edit-name">Изменить имя</button><form id="name-form" class="profile-edit" hidden><label for="name-input">Твой никнейм</label><input id="name-input" maxlength="24" required autocomplete="nickname"><button class="primary" type="submit">Сохранить</button><button type="button" id="cancel-name">Отмена</button><span id="name-message" role="status"></span></form></section><div class="profile-stats">'+[[totalDone(),'Уроков пройдено','book'],[s.xp,'Всего XP','bolt'],[current,'Дней подряд','clock'],[best,'Лучшая серия','trophy']].map(([value,label,symbol])=>'<div class="profile-stat">'+icon(symbol)+'<b>'+value+'</b><span>'+label+'</span></div>').join('')+'</div><div id="streak-live">'+streakCard()+'</div><div class="section-heading"><h2>Твои достижения</h2><span>'+awards.filter(a=>a[3]>=a[4]).length+'/'+awards.length+'</span></div><div class="awards-grid">'+awards.map(([symbol,title,description,value,target])=>'<div class="award" data-earned="'+(value>=target)+'"><div class="award-icon">'+icon(symbol)+'</div><div><b>'+title+'</b><p>'+description+'<br>'+(value>=target?'Получено':Math.min(value,target)+' / '+target)+'</p><progress aria-label="'+title+'" max="'+target+'" value="'+Math.min(value,target)+'"></progress></div></div>').join('')+'</div>';
   const name=s.nickname||'Ученик';document.querySelector('#nickname').textContent=name;document.querySelector('#avatar').textContent=Array.from(name)[0].toUpperCase();
   const form=document.querySelector('#name-form'),input=document.querySelector('#name-input');input.value=name;
+  const friendsButton = document.createElement('button');
+  friendsButton.textContent = 'Друзья';
+  friendsButton.onclick = showFriends;
+  document.querySelector('#edit-name').after(friendsButton);
   document.querySelector('#edit-name').onclick=()=>{form.hidden=false;input.focus();};document.querySelector('#cancel-name').onclick=()=>form.hidden=true;
   form.onsubmit=event=>{event.preventDefault();const nickname=input.value.trim();if(!nickname){input.focus();return;}const updated={...s,nickname};try{localStorage.setItem(key,JSON.stringify(updated));}catch{document.querySelector('#name-message').textContent='Не удалось сохранить. Попробуй ещё раз.';return;}s=updated;progressScreen();};
 }
