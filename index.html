@@ -19,6 +19,7 @@ body.lesson-flow .nav,body.reward-flow .nav{display:none}body.lesson-flow header
 @media(max-width:360px){header{padding-inline:16px}.brand{font-size:24px}.brand svg{width:27px}main{padding-inline:17px}.welcome .greeting{font-size:25px}.language-tag{font-size:10px}.journey-scene{height:165px}.chapter-tabs{margin-inline:-17px;padding-inline:17px}.nav button{font-size:9px}.week-strip{gap:3px}.tasks-hero p{max-width:165px}.tasks-hero h2{font-size:22px;max-width:170px}.tasks-hero .prize{right:12px;width:56px}.series-calendar{padding-inline:9px}.series-calendar .week-strip b{width:28px;height:28px}.lesson-card .phrase{font-size:27px}}
 @media(max-width:360px){.scene-label{display:none}.journey-meta{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.steam{opacity:.15}}
+.reward-actions{display:grid;grid-template-columns:1fr 1.65fr;gap:10px;width:100%;margin-top:auto}.reward-actions button{margin:0;padding-inline:8px;font-size:14px}.reward-actions .icon{width:16px;height:16px}
 
 </style></head><body><div class="shell"><header><button class="brand" aria-label="Салам! На главную"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#16855c"/><path d="m6 23 7-14 5 8 3-5 5 11H6Z" fill="#eaf6d8"/><path d="m10 15 3 2 3-3" stroke="#16855c" stroke-width="1.7"/></svg><span>салам<span style="color:#8ab95d">!</span></span></button><div class="header-stats"><button class="stat-pill" type="button" id="streak-count"></button><span class="stat-pill" id="score"></span></div></header><main id="app"></main><nav class="nav" aria-label="Разделы приложения"><button data-tab="home">Главная</button><button data-tab="course">Уроки</button><button data-tab="review">Повторение</button><button data-tab="tasks">Задания</button><button data-tab="progress">Профиль</button></nav></div><script>
 function icon(name, extra = '') {
@@ -70,7 +71,7 @@ function landscape() {
 function pageHeading(kicker, title, subtitle='') {return '<div class="page-heading"><div class="eyebrow">'+kicker+'</div><h1>'+title+'</h1>'+(subtitle?'<p>'+subtitle+'</p>':'')+'</div>';}
 function totalDone(){return courseOrder.filter(id=>s.done.includes(id)).length;}
 function chapterIcon(index){return ['chat','user','family','numbers'][index]||'book';}
-const chapterDescriptions=['Поздороваться, поддержать разговор и сказать спасибо.','Рассказать о себе и познакомиться с собеседником.','Самые близкие — на родном языке.','Числа, предметы и короткие фразы. В конце — проверка.'];
+const chapterDescriptions=['Поздороваться, поддержать разговор и сказать спасибо.','Рассказать о себе и познакомиться с собеседником.','Самые близкие — на родном языке.','Числа, предметы и короткие фразы. В конце — проверка.','Животные, природа, еда и время суток.'];
 let selectedChapter = null;
 
 
@@ -173,6 +174,27 @@ const chapters = [
   {title:'Семья', lessons:[7,8,9,10]},
   {title:'Счёт и разговор', lessons:[22,23,24,25,26]}
 ];
+const vocabularyLessons = [
+  ['Животные', [['гьой','собака'],['кету','кошка'],['хӀинчӀ','птица'],['бацӀ','волк']]],
+  ['Погода', [['цӀад','дождь'],['гӀазу','снег']]],
+  ['В горах', [['мегӀер','гора'],['гӀор','река'],['гъветӀ','дерево'],['нух','дорога']]],
+  ['За столом', [['чед','хлеб'],['чай','чай'],['хинкал','хинкал'],['лъим','вода']]],
+  ['Время суток', [['радал','утро'],['къо','день'],['сордо','ночь']]]
+];
+const vocabularyGroups = new Map();
+const vocabularyIds = vocabularyLessons.map(([title, words]) => {
+  const id = data.length;
+  const [avar, russian] = words[0];
+  data.push([title, 'Новые слова', avar, russian]);
+  const group = [id];
+  for (const [word, translation] of words.slice(1)) {
+    group.push(data.length);
+    data.push([title, 'Новые слова', word, translation]);
+  }
+  vocabularyGroups.set(id, group);
+  return id;
+});
+chapters.push({title:'Мир вокруг', lessons:vocabularyIds});
 const courseOrder = chapters.flatMap(chapter => chapter.lessons);
 
 function home() {
@@ -197,8 +219,8 @@ function dashboard() {
   app.innerHTML='<div class="welcome"><div><h1 class="greeting">Салам, <span id="hello-name"></span>!</h1><p>Маленький шаг к родному языку.</p></div></div>'+
     '<section class="journey-card"><div class="journey-scene">'+landscape()+'<span class="scene-label">ТВОЁ ПУТЕШЕСТВИЕ</span><span class="scene-badge">АВАРСКИЙ · С НУЛЯ</span></div><div class="journey-content"><div class="journey-meta"><span>РАЗДЕЛ '+(currentIndex+1)+' · '+chapters[currentIndex].title+'</span><span>'+done+'/'+courseOrder.length+'</span></div><h2>'+(next===undefined?'Ты у цели!':data[next][0])+'</h2><p>'+(next===undefined?'Все уроки пройдены. Закрепим их в диалоге?':(lessonGroups[next]?.length||3)+' слова и фразы · в своём темпе')+'</p><button class="primary" id="start">'+(done?'Продолжить путь':'Начать первый урок')+icon('arrow')+'</button></div></section>'+
     '<div class="today-goal"><div class="goal-ring" style="--percent:'+(goal*100)+'%">'+icon('flag')+'</div><div><b>Цель на сегодня</b><p>'+(goal?'Готово. Хорошая привычка начинается здесь.':'Найди пару минут для одного урока.')+'</p></div><div class="goal-value">'+goal+'<small> / 1</small></div></div>'+
-    '<div id="streak-live">'+streakCard()+'</div><div class="section-heading"><h2>Ещё немного практики</h2></div><div class="dashboard-links"><button class="quick-card" id="quick-review"><span class="quick-icon">'+icon('review')+'</span><b>Повторить слова</b><small>Вспомни то, что уже знаешь</small></button><button class="quick-card blue" id="all-lessons"><span class="quick-icon">'+icon('book')+'</span><b>Карта уроков</b><small>'+chapters.length+' раздела · '+courseOrder.length+' уроков</small></button></div>'+
-    '<footer class="course-sources"><details><summary>Об учебном материале</summary><p>Переводы из <a href="https://dokumen.pub/7b7d56e07c7db73ed34f8f0a6c27bf51.html">самоучителя</a> и <a href="https://lingvoforum.net/index.php?topic=56926.0">разговорника</a>.</p></details></footer>';
+    '<div id="streak-live">'+streakCard()+'</div><div class="section-heading"><h2>Ещё немного практики</h2></div><div class="dashboard-links"><button class="quick-card" id="quick-review"><span class="quick-icon">'+icon('review')+'</span><b>Повторить слова</b><small>Вспомни то, что уже знаешь</small></button><button class="quick-card blue" id="all-lessons"><span class="quick-icon">'+icon('book')+'</span><b>Карта уроков</b><small>'+chapters.length+' разделов · '+courseOrder.length+' уроков</small></button></div>'+
+    '<footer class="course-sources"><details><summary>Об учебном материале</summary><p>Лексика новых уроков из <a href="https://tiril.ru/play/">словаря Tiril</a>. Другие источники: <a href="https://dokumen.pub/7b7d56e07c7db73ed34f8f0a6c27bf51.html">самоучителя</a> и <a href="https://lingvoforum.net/index.php?topic=56926.0">разговорника</a>.</p></details></footer>';
   const nickname=s.nickname||'друг';
   document.querySelector('#hello-name').textContent=nickname.length>13?'друг':nickname;
   document.querySelector('#start').onclick=()=>next===undefined?start('final',0):start('lesson',next);
@@ -258,18 +280,18 @@ function taskScreen() {
   app.insertAdjacentHTML('beforeend','<p class="trail-footer">Новые задания появляются каждый день.</p>');
 }
 
-function seriesScreen(celebrate=false) {
+function seriesScreen(celebrate=false, onContinue=home) {
   switchTab('progress');if(celebrate)document.body.classList.add('reward-flow');
   const {count,earnedToday}=streak(),digit=count%10,unit=count%100>=11&&count%100<=14?'дней подряд':digit===1?'день подряд':digit>=2&&digit<=4?'дня подряд':'дней подряд';
   app.innerHTML='<section class="series-screen'+(celebrate?' series-celebrate':'')+'"><div class="eyebrow">УДАРНЫЙ РЕЖИМ</div><h1>'+(celebrate?(count===1?'Начало хорошей привычки':'Ещё один день вместе'):'Сохраняй свой огонь')+'</h1><div class="flame-art'+(count?'':' cold')+'" role="img" aria-label="Огонь серии">'+flame()+'</div><div class="series-number">'+count+'</div><p class="series-unit">'+unit+'</p><div class="series-calendar"><small>ТВОЯ НЕДЕЛЯ</small>'+streakWeek()+'</div><p class="series-message">'+(earnedToday?'Сегодня ты уже сделал шаг. Возвращайся завтра, чтобы продолжить серию.':'Один законченный урок в день — и огонь продолжает гореть.')+'</p><button class="primary" id="series-back">'+(celebrate?'Продолжить':'Вернуться в профиль')+icon('arrow')+'</button></section>';
-  document.querySelector('#series-back').onclick=celebrate?()=>{selectedChapter=null;home();}:progressScreen;
+  document.querySelector('#series-back').onclick=celebrate?onContinue:progressScreen;
 }
 
 function mealReward(points,extended) {
-  const pieces=[[29,140,-15],[44,142,13],[39,119,-12],[20,126,15],[55,121,16],[43,104,-8]];
+  const pieces=[[18,136,-15],[34,145,13],[51,145,-9],[64,130,16],[13,116,12],[28,119,-12],[46,122,15],[57,110,-13],[23,101,9],[40,101,-8],[35,83,10],[49,88,-14]];
   const food=pieces.map(([x,y,r],n)=>'<i class="khinkal" style="--x:'+x+'%;--y:'+y+'px;--r:'+r+'deg;--delay:'+n*.13+'s"></i>').join('');
   const steam=[34,49,61].map((x,n)=>'<i class="steam" style="--x:'+x+'%;--delay:'+(1.15+n*.24)+'s"></i>').join('');
-  return '<section class="reward"><div class="eyebrow">ЕЩЁ ОДНА МАЛЕНЬКАЯ ПОБЕДА</div><h1>Отличная работа!</h1><p class="reward-subtitle">'+(mode==='final'?'Диалог завершён':mode==='review'?'Повторение пройдено':'Урок пройден. Можно выдохнуть.')+'</p><div class="plate-scene" role="img" aria-label="Тарелка горячего аварского хинкала"><div class="plate"></div>'+food+steam+'</div><div class="reward-stats"><div class="reward-stat gold"><span>Получено опыта</span><b>'+icon('bolt')+'+'+points+' XP</b></div><div class="reward-stat"><span>Выполнено заданий</span><b>'+icon('check')+q+'</b></div></div><p class="reward-footnote">'+(mode==='final'?'Достижение «Могу начать разговор» открыто.':'Слова становятся ближе с каждым уроком.')+'</p><button class="primary" id="home">Продолжить'+icon('arrow')+'</button></section>';
+  return '<section class="reward"><div class="eyebrow">ЕЩЁ ОДНА МАЛЕНЬКАЯ ПОБЕДА</div><h1>Отличная работа!</h1><p class="reward-subtitle">'+(mode==='final'?'Диалог завершён':mode==='review'?'Повторение пройдено':'Урок пройден. Можно выдохнуть.')+'</p><div class="plate-scene" role="img" aria-label="Тарелка горячего аварского хинкала"><div class="plate"></div>'+food+steam+'</div><div class="reward-stats"><div class="reward-stat gold"><span>Получено опыта</span><b>'+icon('bolt')+'+'+points+' XP</b></div><div class="reward-stat"><span>Выполнено заданий</span><b>'+icon('check')+q+'</b></div></div><p class="reward-footnote">'+(mode==='final'?'Достижение «Могу начать разговор» открыто.':'Слова становятся ближе с каждым уроком.')+'</p><div class="reward-actions"><button class="secondary" id="home">В меню</button><button class="primary" id="next-lesson">Следующий урок'+icon('arrow')+'</button></div></section>';
 }
 
 function progressScreen() {
@@ -289,6 +311,7 @@ const lessonGroups = [
   [], [], [], [], [], [], [], [], [], [],
   [12,13,14,15,16,17,18,19,20,21], [23,27,28,29], [11,24,5], [25,6,4], [15,19,23,24,25,27,29]
 ];
+for (const [id, group] of vocabularyGroups) lessonGroups[id] = group;
 let lessonSteps = [];
 
 function start(m,j) {
@@ -475,7 +498,13 @@ function finish(){
   const extended=save(mode!=='review');stats();
   document.body.classList.remove('lesson-flow');document.body.classList.add('reward-flow');
   app.innerHTML=mealReward(points,extended);
-  document.querySelector('#home').onclick=extended?()=>seriesScreen(true):mode==='review'?reviewScreen:()=>{selectedChapter=null;home();};
+  const next = courseOrder.find(id => !s.done.includes(id));
+  const nextAction = next === undefined ? (s.badge ? home : () => start('final', 0)) : () => start('lesson', next);
+  const transition = action => () => extended ? seriesScreen(true, action) : action();
+  document.querySelector('#home').onclick = transition(dashboard);
+  const nextButton = document.querySelector('#next-lesson');
+  if (next === undefined) nextButton.textContent = s.badge ? 'К урокам' : 'Финальный диалог';
+  nextButton.onclick = transition(nextAction);
 }
 
 document.querySelector('.brand').onclick=dashboard;
