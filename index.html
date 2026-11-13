@@ -51,6 +51,11 @@ body.lesson-flow .nav,body.reward-flow .nav{display:none}body.lesson-flow header
 .friend-avatar{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#d9eee1;color:#176748;font-size:22px;font-weight:900}
 #friends-result h2,#friends-list h2{margin:8px 0}#friends-result button{margin-top:8px}#friends-status{padding:10px;border-radius:12px;background:#edf6ef}
 @media(max-width:350px){#friends-form{grid-template-columns:1fr}}
+.friends-hero{height:auto;min-height:100px}
+.friend-row-name{flex:1;min-width:90px;align-self:center;overflow-wrap:anywhere;font-weight:800}
+.friends-row button{font-size:12px;padding:8px}
+.friend-public-profile{margin-top:16px;padding:24px;border-radius:20px;background:#eaf6ee;overflow-wrap:anywhere}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
 
 </style></head><body><div class="shell"><header><button class="brand" aria-label="Салам! На главную"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#16855c"/><path d="m6 23 7-14 5 8 3-5 5 11H6Z" fill="#eaf6d8"/><path d="m10 15 3 2 3-3" stroke="#16855c" stroke-width="1.7"/></svg><span>салам<span style="color:#8ab95d">!</span></span></button><div class="header-stats"><button class="stat-pill" type="button" id="streak-count"></button><span class="stat-pill" id="score"></span></div></header><main id="app"></main><nav class="nav" aria-label="Разделы приложения"><button data-tab="home">Главная</button><button data-tab="course">Уроки</button><button data-tab="review">Повторение</button><button data-tab="tasks">Задания</button><button data-tab="progress">Профиль</button></nav></div><script>
 function showFriends() {
@@ -58,7 +63,7 @@ function showFriends() {
   let account;
   try { account = JSON.parse(localStorage.getItem(key)); } catch {}
   app.innerHTML = '' + `
-    <button id="friends-back" class="friends-back">← В профиль</button><header class="friends-hero"><h1>Друзья</h1><p>Найди знакомых по @юзернейму</p></header>
+    <button id="friends-back" class="friends-back">← В профиль</button><div class="friends-hero"><h1>Друзья</h1><p>Найди знакомых по @юзернейму</p></div>
     <section class="friends-panel"><div id="friends-own" hidden></div>
       <p id="friends-status" role="status"></p>
       <form id="friends-form">
@@ -157,7 +162,16 @@ function showFriends() {
       }
       for (const person of people) {
         const row = document.createElement('div');
-        row.append(button(person.nickname + ' · @' + person.username, () => profile(person)));
+        const identity = document.createElement('span');
+        identity.className = 'friend-row-name';
+        identity.textContent = person.nickname + ' · @' + person.username;
+        row.append(identity, button('Зайти в профиль', () => {
+          const back = button('← К друзьям', showFriends);
+          const card = profile(person);
+          card.className = 'friend-public-profile';
+          app.replaceChildren(back, card);
+          window.scrollTo(0, 0);
+        }));
         if (!person.accepted && person.sender !== me.username) {
           for (const [label, action] of [['Принять','accept'],['Отклонить','decline']]) {
             row.append(button(label, async () => {
@@ -479,6 +493,45 @@ function progressScreen() {
   app.innerHTML=pageHeading('ТВОЯ ИСТОРИЯ','Профиль')+'<section class="profile-head"><div class="profile-cover">'+landscape()+'</div><div class="profile-avatar" id="avatar"></div><h1 id="nickname"></h1><p>Изучаю аварский · с каждым днём ближе</p><button id="edit-name">Изменить имя</button><form id="name-form" class="profile-edit" hidden><label for="name-input">Твой никнейм</label><input id="name-input" maxlength="24" required autocomplete="nickname"><button class="primary" type="submit">Сохранить</button><button type="button" id="cancel-name">Отмена</button><span id="name-message" role="status"></span></form></section><div class="profile-stats">'+[[totalDone(),'Уроков пройдено','book'],[s.xp,'Всего XP','bolt'],[current,'Дней подряд','clock'],[best,'Лучшая серия','trophy']].map(([value,label,symbol])=>'<div class="profile-stat">'+icon(symbol)+'<b>'+value+'</b><span>'+label+'</span></div>').join('')+'</div><div id="streak-live">'+streakCard()+'</div><div class="section-heading"><h2>Твои достижения</h2><span>'+awards.filter(a=>a[3]>=a[4]).length+'/'+awards.length+'</span></div><div class="awards-grid">'+awards.map(([symbol,title,description,value,target])=>'<div class="award" data-earned="'+(value>=target)+'"><div class="award-icon">'+icon(symbol)+'</div><div><b>'+title+'</b><p>'+description+'<br>'+(value>=target?'Получено':Math.min(value,target)+' / '+target)+'</p><progress aria-label="'+title+'" max="'+target+'" value="'+Math.min(value,target)+'"></progress></div></div>').join('')+'</div>';
   const name=s.nickname||'Ученик';document.querySelector('#nickname').textContent=name;document.querySelector('#avatar').textContent=Array.from(name)[0].toUpperCase();
   const form=document.querySelector('#name-form'),input=document.querySelector('#name-input');input.value=name;
+  const avatar = document.querySelector('.profile-avatar');
+  const photo = document.createElement('input');
+  photo.type = 'file';
+  photo.accept = 'image/*';
+  photo.hidden = true;
+  const photoButton = document.createElement('button');
+  photoButton.textContent = 'Выбрать фото';
+  const photoStatus = document.createElement('p');
+  photoStatus.setAttribute('role', 'status');
+  photoButton.onclick = () => photo.click();
+  function displayAvatar(url) {
+    const image = new Image();
+    image.alt = 'Аватар профиля';
+    image.src = url;
+    avatar.replaceChildren(image);
+  }
+  const savedPhoto = localStorage.getItem('salam-avatar');
+  if (savedPhoto) displayAvatar(savedPhoto);
+  photo.onchange = async () => {
+    const file = photo.files[0];
+    if (!file) return;
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 192;
+      const size = Math.min(bitmap.width, bitmap.height);
+      canvas.getContext('2d').drawImage(bitmap, (bitmap.width-size)/2, (bitmap.height-size)/2, size, size, 0, 0, 192, 192);
+      bitmap.close();
+      const url = canvas.toDataURL('image/jpeg', 0.85);
+      localStorage.setItem('salam-avatar', url);
+      displayAvatar(url);
+      photoStatus.textContent = 'Аватар сохранён на этом устройстве.';
+    } catch {
+      photoStatus.textContent = 'Не удалось сохранить фото. Попробуй JPEG или PNG.';
+    } finally {
+      photo.value = '';
+    }
+  };
+  document.querySelector('#edit-name').after(photoButton, photo, photoStatus);
   const friendsButton = document.createElement('button');
   friendsButton.className = 'friends-entry';
   friendsButton.innerHTML = icon('user') + '<span><strong>Друзья</strong><small>Поиск по @юзернейму и заявки</small></span>' + icon('arrow');
