@@ -168,12 +168,51 @@ button:active:not(:disabled){transform:translateY(2px)}
 @keyframes level-bob{50%{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){.level-chapter .lesson-stop[data-state="next"]:before{animation:none}}
 @media(max-width:360px){.level-chapter .lesson-stop[data-state="next"]:before{left:93px;font-size:9px;padding:6px}.level-chapter .lesson-stop:nth-child(4n+3){margin-left:70px}.level-chapter .lesson-stop:nth-child(4n+1){margin-left:-70px}}
-</style><div class="shell"><header><b>Салам!</b><div class="header-stats"><span id="streak-count"></span><span id="score"></span></div></header><main id="app"></main>
+
+.nav{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;padding-inline:6px}.nav button{font-size:clamp(9px,2.7vw,12px);padding-inline:0}
+.quest{display:grid;gap:9px}.quest h2,.quest p{margin:0}.quest progress{height:12px}
+.week-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:3px}.week-strip span{font-size:11px}.week-strip b{display:grid;place-items:center;margin:0 auto 5px;width:27px;height:27px;border-radius:50%;background:#fff}.week-strip .hit{background:#21864b;color:white}.week-strip .today{outline:2px solid #c47534}
+#streak-count{cursor:pointer}.streak-earned .streak-flame{filter:drop-shadow(0 0 10px #fca94a)}
+.recall{display:grid;gap:10px}.recall input{font:inherit;width:100%;padding:13px;border:2px solid #b9dcca;border-radius:12px}
+
+.reward{text-align:center;padding:24px 8px}.reward h1{font-size:38px;margin:10px 0}.reward p{color:#377652}
+.plate-scene{position:relative;width:min(100%,290px);height:225px;margin:0 auto}
+.plate{position:absolute;inset:100px 9px 16px;border-radius:50%;background:#edf7ef;border:8px solid #fff;box-shadow:0 7px 0 #bddac6,0 13px 22px #22573625,inset 0 0 0 3px #b5d9be}
+.khinkal{position:absolute;left:var(--x);top:var(--y);width:63px;height:38px;border-radius:12px 16px 11px 13px;background:linear-gradient(155deg,#fff3cf,#edce99);box-shadow:0 5px 0 #caa16b,0 8px 8px #68461b35,inset 0 2px 0 #fff9df;transform:rotate(var(--r));animation:drop .58s var(--delay) both}
+@keyframes drop{0%{transform:translateY(-145px) rotate(-35deg);opacity:0}68%{transform:translateY(4px) rotate(var(--r));opacity:1}83%{transform:translateY(-9px) rotate(var(--r))}100%{transform:rotate(var(--r))}}
+.steam{position:absolute;left:var(--x);top:78px;width:17px;height:47px;border-radius:50%;background:#fff;filter:blur(4px);animation:steam 2s var(--delay) infinite both;pointer-events:none}
+@keyframes steam{0%{transform:translateY(0) scale(.55);opacity:0}35%{opacity:.8}100%{transform:translate(10px,-63px) scale(1.35);opacity:0}}
+.series-screen{text-align:center;background:#123c2c;color:white;border-radius:28px;padding:25px 16px;margin:14px 0;box-shadow:0 6px 0 #0b2c20}
+.series-screen h1{font-size:30px;margin:0 0 24px}.series-screen .profile-avatar{margin-bottom:18px}.series-screen .series-number{font-size:64px;font-weight:900;margin:12px 0}.series-screen .week-strip b{color:#153b2a}.series-screen .week-strip .hit{color:white}.series-screen .week-strip .miss{background:#f2a99e}.series-screen .series-flame{display:inline-block;animation:streak-ignite .66s both}.series-screen .series-flame.cold{filter:grayscale(1)}
+@media(prefers-reduced-motion:reduce){.khinkal,.series-screen .series-flame{animation:none}.steam{animation:none;opacity:.55}}
+
+body.reward-flow .nav{display:none}
+body.reward-flow main{padding-bottom:25px}
+.series-screen{display:flex;flex-direction:column;align-items:center;background:white;color:#173c2a;border-radius:0;box-shadow:none;min-height:68dvh;margin:0;padding:30px 8px}
+.series-screen h1{font-size:22px;margin:0 0 34px}
+.series-screen .series-number{font-size:70px;line-height:1;margin:25px 0 8px;letter-spacing:-3px}
+.series-screen .series-unit{color:#54715e;font-size:17px;margin:0 0 28px}
+.series-screen .week-strip{width:100%;border-top:1px solid #e8eee9;border-bottom:1px solid #e8eee9;padding:22px 0;margin-bottom:20px}
+.series-screen .week-strip b{width:33px;height:33px;background:#eff3f0;color:#829087}
+.series-screen .week-strip .hit{background:#22a658;color:white}
+.series-screen .week-strip .miss{background:#eff3f0;color:#829087}
+.series-screen .week-strip .today{outline:2px solid #23a357;outline-offset:3px}
+.series-screen .primary{margin-top:auto;width:100%;text-align:center}
+.flame-art{position:relative;width:100px;height:125px;margin:0 auto;filter:drop-shadow(0 9px 0 #d9651820)}
+.flame-art:before{content:'';position:absolute;inset:0 7px 0;background:linear-gradient(20deg,#ffb532,#fa7028);border-radius:75% 8% 65% 45%;transform:rotate(-32deg)}
+.flame-art:after{content:'';position:absolute;width:38px;height:59px;bottom:6px;left:33px;background:#ffe6a0;border-radius:80% 8% 70% 45%;transform:rotate(-30deg)}
+.series-celebrate .flame-art{animation:ignite-new .85s both}
+.series-celebrate .series-number{animation:number-new .5s .4s both}
+@keyframes ignite-new{0%{opacity:0;transform:scale(.4) translateY(35px)}65%{opacity:1;transform:scale(1.12) translateY(-8px)}100%{transform:scale(1)}}
+@keyframes number-new{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.flame-art.cold{filter:grayscale(1);opacity:.5}
+@media(prefers-reduced-motion:reduce){.series-celebrate .flame-art,.series-celebrate .series-number{animation:none}}
+</style><div class="shell"><header><b>Салам!</b><div class="header-stats"><button type="button" id="streak-count"></button><span id="score"></span></div></header><main id="app"></main>
 <nav class="nav" aria-label="Разделы приложения">
 <button data-tab="home"><strong aria-hidden="true">⌂</strong>Главная</button>
 <button data-tab="course"><strong aria-hidden="true">▤</strong>Уроки</button>
 <button data-tab="review"><strong aria-hidden="true">↻</strong>Повторение</button>
-<button data-tab="progress"><strong aria-hidden="true">◉</strong>Профиль</button>
+<button data-tab="tasks"><strong aria-hidden="true">◆</strong>Задания</button><button data-tab="progress"><strong aria-hidden="true">◉</strong>Профиль</button>
 </nav></div><script>
 const data=[
 ['Приветствие','У двери','Салам!','Привет!'],
@@ -187,11 +226,33 @@ const data=[
 ['Папа','Семья','Эмен','Папа'],
 ['Брат','Семья','Вац','Брат'],
 ['Сестра','Семья','Яц','Сестра'],
-['Сколько тебе лет?','Знакомство','Дур чан сон?','Сколько тебе лет?']
+['Сколько тебе лет?','Знакомство','Дур чан сон?','Сколько тебе лет?'],
+["Один","Счёт","Цо","Один"],
+["Два","Счёт","КӀиго","Два"],
+["Три","Счёт","Лъабго","Три"],
+["Четыре","Счёт","Ункъо","Четыре"],
+["Пять","Счёт","Щуго","Пять"],
+["Шесть","Счёт","Анлъго","Шесть"],
+["Семь","Счёт","Анкьго","Семь"],
+["Восемь","Счёт","Микьго","Восемь"],
+["Девять","Счёт","ИчӀго","Девять"],
+["Десять","Счёт","АнцӀго","Десять"]
 ];
+data.push(
+  ['Цифры 1–10','Счёт','Цо','Один'],
+  ['Считаем предметы','Счёт','КӀиго гӀеч','Два яблока'],
+  ['Возраст','Разговор','АнцӀго сон','Десять лет'],
+  ['Друзья','Разговор','Лъабго гьудул','Три друга'],
+  ['Проверка выученного','Проверка','Микьго','Восемь'],
+  ['Книги','Счёт','Анлъго тӀехь','Шесть книг'],
+  ['Дома','Счёт','Анкьго мина','Семь домов'],
+  ['Цветы','Счёт','ИчӀго тӀегь','Девять цветков']
+);
 const key='salam-course-v1';let s={xp:0,done:[],days:[],streakDays:[],badge:false},i=0,q=0,locked=false,mode='lesson';
 try{s={...s,...JSON.parse(localStorage.getItem(key)||'{}')}}catch{}
 const app=document.querySelector('#app'),score=document.querySelector('#score');
+
+
 function dateKey(date) {
   return [date.getFullYear(),date.getMonth()+1,date.getDate()].join('-');
 }
@@ -232,6 +293,21 @@ function stats() {
   if (liveCard) liveCard.innerHTML = streakCard();
 }
 
+function streakWeek() {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (today.getDay()+6)%7);
+  return '<div class="week-strip" aria-label="Серия на этой неделе">' +
+    ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((label,index) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate()+index);
+      const hit = s.streakDays.includes(dateKey(date));
+      const current = dateKey(today) === dateKey(date);
+      return '<span><b class="'+(hit?'hit ':'')+(current?'today':date < today && !hit?'miss':'')+'">'+
+        (hit?'✓':date < today && !current?'×':'·')+'</b>'+label+'</span>';
+    }).join('')+'</div>';
+}
+
 function streakCard(earned = false) {
   const {count,earnedToday} = streak();
   const title = earned ? (count === 1 ? 'Огонь зажжён!' : 'Держишь темп!') : 'Ударный режим';
@@ -242,14 +318,15 @@ function streakCard(earned = false) {
     count ? count + ' ' + unit + ' подряд · пройди урок сегодня' : 'Пройди урок, чтобы зажечь огонь';
   return '<div class="streak-card' + (earned ? ' streak-earned' : '') +
     '"><span class="streak-flame" aria-hidden="true">🔥</span><div><b>' + title +
-    '</b><span class="streak-caption">' + status + '</span></div></div>';
+    '</b><span class="streak-caption">' + status + '</span></div>' + streakWeek() + '</div>';
 }
 
 function week(){const d=new Date(), offset=(d.getDay()+6)%7;let n=0;for(let j=0;j<=offset;j++){const a=new Date(d);a.setDate(d.getDate()-j);if(s.days.includes([a.getFullYear(),a.getMonth()+1,a.getDate()].join('-')))n++}return n}
 const chapters = [
   {title:'В гостях', lessons:[0,1,2,3,4]},
   {title:'Знакомство', lessons:[5,6,11]},
-  {title:'Семья', lessons:[7,8,9,10]}
+  {title:'Семья', lessons:[7,8,9,10]},
+  {title:'Счёт и разговор', lessons:[22,23,24,25,26]}
 ];
 const courseOrder = chapters.flatMap(chapter => chapter.lessons);
 
@@ -258,7 +335,7 @@ function home() {
   stats();
   const next = courseOrder.find(id => !s.done.includes(id));
   const current = chapters.find(chapter => chapter.lessons.includes(next));
-  const action = next === undefined ? 'К финальному диалогу' : s.done.length ? 'Продолжить' : 'Начать урок';
+  const action = next === undefined ? 'К финальному диалогу' : courseOrder.filter(id=>s.done.includes(id)).length ? 'Продолжить' : 'Начать урок';
   app.innerHTML = '<h1 class="dashboard-title">Уроки</h1><div id="route"></div>';
   const route = document.querySelector('#route');
   chapters.forEach(chapter => {
@@ -289,12 +366,12 @@ function dashboard() {
   stats();
   const next = courseOrder.find(id => !s.done.includes(id));
   const current = chapters.find(chapter => chapter.lessons.includes(next));
-  const action = next === undefined ? 'К финальному диалогу' : s.done.length ? 'Продолжить' : 'Начать урок';
+  const action = next === undefined ? 'К финальному диалогу' : courseOrder.filter(id=>s.done.includes(id)).length ? 'Продолжить' : 'Начать урок';
   app.innerHTML = '<section class="hero course-hero"><small>' +
     (current ? current.title : 'Аварский с нуля') + '</small><h1>' +
     (next === undefined ? 'Финальный диалог' : data[next][0]) +
     '</h1><button class="primary" id="start">' + action + '<span aria-hidden="true">→</span></button></section>' +
-    '<div id="streak-live">' + streakCard() + '</div><div class="dashboard-links"><button id="all-lessons">Все уроки<small>' + s.done.length + ' из ' + data.length + ' пройдено</small></button><button id="quick-review">Повторение<small>Закрепи знакомые фразы</small></button></div>' +
+    '<div id="streak-live">' + streakCard() + '</div><div class="dashboard-links"><button id="all-lessons">Все уроки<small>' + courseOrder.filter(id=>s.done.includes(id)).length + ' из ' + courseOrder.length + ' пройдено</small></button><button id="quick-review">Повторение<small>Закрепи знакомые фразы</small></button></div>' +
     '<footer class="course-sources"><details><summary>Источники курса</summary><p><a href="https://dokumen.pub/7b7d56e07c7db73ed34f8f0a6c27bf51.html">Самоучитель</a> · <a href="https://lingvoforum.net/index.php?topic=56926.0">Разговорник</a></p></details></footer>';
   document.querySelector('#start').onclick = () => next === undefined ? start('final',0) : start('lesson',next);
 
@@ -322,6 +399,7 @@ function animateScreen() {
 }
 
 function switchTab(tab) {
+  document.body.classList.remove('reward-flow');
   document.querySelectorAll('[data-tab]').forEach(button => {
     if (button.dataset.tab === tab) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
@@ -332,9 +410,77 @@ function switchTab(tab) {
 function reviewScreen() {
   switchTab('review');
   app.innerHTML = '<section class="card"><h1>Повторение</h1><p>' +
-    (s.done.length ? 'Вспомни фразы из пройденных уроков. За тренировку ты получишь 5 очков.' : 'Пройди первый урок, чтобы открыть тренировку.') +
-    '</p><button id="practice" class="primary">' + (s.done.length ? 'Начать тренировку' : 'К урокам') + '</button></section>';
-  document.querySelector('#practice').onclick = () => s.done.length ? start('review', 0) : home();
+    (courseOrder.filter(id=>s.done.includes(id)).length ? 'Вспомни фразы из пройденных уроков. За тренировку ты получишь 5 очков.' : 'Пройди первый урок, чтобы открыть тренировку.') +
+    '</p><button id="practice" class="primary">' + (courseOrder.filter(id=>s.done.includes(id)).length ? 'Начать тренировку' : 'К урокам') + '</button></section>';
+  document.querySelector('#practice').onclick = () => courseOrder.filter(id=>s.done.includes(id)).length ? start('review', 0) : home();
+}
+
+function dailyTasks() {
+  const day = dateKey(new Date());
+  if (s.tasks?.day !== day) s.tasks = {day,lessons:0,review:0,claimed:[]};
+  return s.tasks;
+}
+
+function taskScreen() {
+  switchTab('tasks');
+  const daily = dailyTasks();
+  const tasks = [
+    ['lesson','Пройди урок',Math.max(daily.lessons,Number(streak().earnedToday)),1,10,home],
+    ['review','Заверши повторение',daily.review,1,10,reviewScreen],
+    ['double','Пройди два урока',daily.lessons,2,15,home]
+  ];
+  app.innerHTML = '<section class="hero"><h1>Задания</h1><p>Цели на сегодня · обновляются в полночь</p></section>';
+  for (const [id,title,value,target,reward,open] of tasks) {
+    const card = document.createElement('section');
+    const claimed = daily.claimed.includes(id);
+    const ready = value >= target;
+    card.className = 'card quest';
+    card.innerHTML = '<h2>'+title+'</h2><p>'+Math.min(value,target)+' / '+target+
+      ' · +'+reward+' XP</p><progress aria-label="'+title+'" max="'+target+'" value="'+Math.min(value,target)+'"></progress>';
+    const button = document.createElement('button');
+    button.textContent = claimed?'Награда получена':ready?'Забрать награду':'К заданию →';
+    button.disabled = claimed;
+    button.onclick = () => {
+      if (!ready) return open();
+      if (dailyTasks() !== daily || daily.claimed.includes(id)) return taskScreen();
+      daily.claimed.push(id);
+      s.xp += reward;
+      try {localStorage.setItem(key,JSON.stringify(s));} catch {}
+      playSound([523,784,1047]);
+      stats();
+      taskScreen();
+    };
+    card.append(button);
+    app.append(card);
+  }
+}
+
+function seriesScreen(celebrate = false) {
+  switchTab('progress');
+  if (celebrate) document.body.classList.add('reward-flow');
+  const {count,earnedToday} = streak();
+  const digit = count % 10;
+  const unit = count % 100 >= 11 && count % 100 <= 14 ? 'дней подряд' :
+    digit === 1 ? 'день подряд' : digit >= 2 && digit <= 4 ? 'дня подряд' : 'дней подряд';
+  app.innerHTML = '<section class="series-screen'+(celebrate?' series-celebrate':'')+'">' +
+    '<h1>'+(celebrate && earnedToday?'Ещё один день с аварским':'Ударный режим')+'</h1>' +
+    '<div class="flame-art'+(count?'':' cold')+'" role="img" aria-label="Огонь серии"></div>' +
+    '<div class="series-number">'+count+'</div><p class="series-unit">'+unit+'</p>' +
+    streakWeek() + '<p>'+(earnedToday?'Сегодня готово. Продолжим завтра?':'Один урок сегодня — следующий шаг в серии.')+'</p>' +
+    '<button class="primary" id="series-back">'+(celebrate?'Продолжить':'В профиль')+'</button></section>';
+  document.querySelector('#series-back').onclick = celebrate ? home : progressScreen;
+}
+
+function mealReward(points, extended) {
+  const pieces = [[29,128,-15],[44,130,13],[39,107,-12],[20,114,15],[55,109,16],[43,92,-8]];
+  const food = pieces.map(([x,y,rotation],index) => '<i class="khinkal" style="--x:'+x+
+    '%;--y:'+y+'px;--r:'+rotation+'deg;--delay:'+(index*.13)+'s"></i>').join('');
+  const steam = [34,49,61].map((x,index) => '<i class="steam" style="--x:'+x+
+    '%;--delay:'+(1.15+index*.24)+'s"></i>').join('');
+  return '<section class="reward"><h1>Урок пройден!</h1><div class="plate-scene" role="img" aria-label="Тарелка горячего аварского хинкала">' +
+    '<div class="plate"></div>'+food+steam+'</div><p>+'+points+' XP'+
+    ''+'</p><button class="primary" id="home">Продолжить</button>' +
+    '</section>';
 }
 
 function progressScreen() {
@@ -345,11 +491,11 @@ function progressScreen() {
     return streak(new Date(year,month-1,date)).count;
   }));
   const awards = [
-    ['✦','Первый шаг','Пройди первый урок',s.done.length,1],
-    ['▤','Вошёл во вкус','Пройди 5 разных уроков',s.done.length,5],
+    ['✦','Первый шаг','Пройди первый урок',courseOrder.filter(id=>s.done.includes(id)).length,1],
+    ['▤','Вошёл во вкус','Пройди 5 разных уроков',courseOrder.filter(id=>s.done.includes(id)).length,5],
     ['★','Могу начать разговор','Заверши финальный диалог',Number(s.badge),1],
     ['🔥','Неделя в ритме','Собери серию из 7 дней',best,7],
-    ['◆','Вся программа','Пройди все 12 уроков',s.done.length,12]
+    ['◆','Вся программа','Пройди все уроки',courseOrder.filter(id=>s.done.includes(id)).length,courseOrder.length]
   ];
   app.innerHTML = '<section class="profile-head"><div class="profile-avatar" id="avatar"></div>' +
     '<h1 id="nickname"></h1><p>Изучаю аварский</p><button id="edit-name">Изменить никнейм</button>' +
@@ -357,7 +503,7 @@ function progressScreen() {
     '<input id="name-input" maxlength="24" required autocomplete="nickname"><button class="primary" type="submit">Сохранить</button>' +
     '<button type="button" id="cancel-name">Отмена</button><span id="name-message" role="status"></span></form></section>' +
     '<div class="profile-stats">' +
-    [[s.done.length,'Уроков пройдено'],[s.xp,'Всего очков'],[current,'Дней подряд'],[best,'Лучшая серия']].map(
+    [[courseOrder.filter(id=>s.done.includes(id)).length,'Уроков пройдено'],[s.xp,'Всего очков'],[current,'Дней подряд'],[best,'Лучшая серия']].map(
       ([value,label]) => '<div class="profile-stat"><b>'+value+'</b><span>'+label+'</span></div>').join('') +
     '</div><div id="streak-live">' + streakCard() + '</div><h2>Достижения</h2>' +
     awards.map(([icon,title,description,value,target]) => '<div class="award" data-earned="'+(value>=target)+'">' +
@@ -385,7 +531,9 @@ function progressScreen() {
 
 const lessonGroups = [
   [0,1,2], [0,1,4], [2,3,4], [0,2,3], [1,3,4],
-  [0,5,6], [5,6,11], [7,8,5], [8,7,6], [9,10,8], [10,9,7], [5,11,6]
+  [0,5,6], [5,6,11], [7,8,5], [8,7,6], [9,10,8], [10,9,7], [5,11,6],
+  [], [], [], [], [], [], [], [], [], [],
+  [12,13,14,15,16,17,18,19,20,21], [23,27,28,29], [11,24,5], [25,6,4], [15,19,23,24,25,27,29]
 ];
 let lessonSteps = [];
 
@@ -395,9 +543,9 @@ function start(m,j) {
   q=0;
   if (m === 'lesson') {
     const group = lessonGroups[j];
-    lessonSteps = [
+    lessonSteps = j === 26 ? shuffle(group).map(id => ({id,type:'recall'})) : [
       ...group.map(id => ({id,type:'meaning'})),
-      ...group.map(id => ({id,type:data[id][2].trim().includes(' ') ? 'build' : 'av'}))
+      ...shuffle(group).map((id,index) => ({id,type:index === 0 ? 'recall' : data[id][2].includes(' ') ? 'build' : 'av'}))
     ];
   }
   show();
@@ -405,6 +553,8 @@ function start(m,j) {
 document.querySelector('[data-tab="home"]').onclick = dashboard;
 document.querySelector('[data-tab="course"]').onclick = home;
 document.querySelector('[data-tab="review"]').onclick = reviewScreen;
+document.querySelector('[data-tab="tasks"]').onclick = taskScreen;
+document.querySelector('#streak-count').onclick = () => seriesScreen();
 document.querySelector('[data-tab="progress"]').onclick = progressScreen;
 const scenes=['Ты подходишь к двери. Поздоровайся.','Хозяин: «Салам!» Ответь ему.','Вы начинаете разговор. Спроси, как дела.','Хозяин: «Иш кин бугеб?» Ответь, что всё хорошо.','Хозяин угощает тебя. Поблагодари его.'];
 function shuffle(items) {
@@ -449,7 +599,7 @@ function show() {
   animateScreen();
   locked = false;
   const isLesson = mode === 'lesson';
-  const ids = mode === 'review' ? [...s.done].sort((a,b)=>a-b) : [0,1,2,3,4];
+  const ids = mode === 'review' ? [...new Set(courseOrder.filter(id=>s.done.includes(id)).flatMap(id=>id<12?[id]:lessonGroups[id]))] : [0,1,2,3,4];
   const step = isLesson ? lessonSteps[q] : {id:ids[q],type:'av'};
   const total = isLesson ? lessonSteps.length : ids.length;
   const row = data[step.id];
@@ -457,7 +607,7 @@ function show() {
   const build = step.type === 'build';
   const label = isLesson ? data[i][0] : mode === 'final' ? 'Финальный диалог' : 'Повторение';
   const title = mode === 'final' ? scenes[q] : row[meaning ? 2 : 3];
-  const instruction = build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
+  const instruction = step.type === 'recall' ? 'Напиши по-аварски' : build ? 'Собери фразу на аварском' : meaning ? 'Выбери перевод' : 'Выбери ответ на аварском';
   app.innerHTML = '<button id="back">← ' + (mode === 'review' ? 'Повторение' : 'Уроки') +
     '</button><section class="card lesson-card"><small>' + label + ' · ' + (q+1) + ' из ' + total +
     '</small><progress max="' + total + '" value="' + q + '" aria-label="Прогресс задания"></progress>' +
@@ -483,6 +633,30 @@ function show() {
     };
   }
 
+  if (step.type === 'recall') {
+    choices.innerHTML = '<form id="recall-form" class="recall"><input id="recall-input" aria-label="Ответ на аварском" autocomplete="off" spellcheck="false" required><button>Проверить</button><button type="button" id="recall-hint">Подсказка</button></form>';
+    const input = document.querySelector('#recall-input');
+    const normalize = value => value.toLowerCase().normalize('NFC').replace(/[ӏіi1|]/gu,'ӏ').replace(/[^\p{L}\s]/gu,'').trim().replace(/\s+/g,' ');
+    const hint = document.querySelector('#recall-hint');
+    hint.hidden = isLesson && i === 26;
+    hint.onclick = () => {
+      feedback.className = 'muted';
+      feedback.textContent = 'Начало: '+row[2].slice(0,2)+'…';
+    };
+    document.querySelector('#recall-form').onsubmit = event => {
+      event.preventDefault();
+      if (locked) return;
+      if (normalize(input.value) === normalize(row[2])) {
+        input.readOnly = true;
+        accept();
+      } else {
+        feedback.className = 'bad';
+        feedback.textContent = hint.hidden ? 'Попробуй ещё раз.' : 'Попробуй ещё раз. Можно взять подсказку.';
+      }
+    };
+    return;
+  }
+
   if (build) {
     const words = row[2].split(' ');
     let picked = [];
@@ -492,7 +666,8 @@ function show() {
     const bank = document.querySelector('#tile-bank');
     const check = document.querySelector('#check');
     check.disabled = true;
-    for (const word of shuffle(words)) {
+    const extras = shuffle([...new Set(data.flatMap(item => item[2].split(' ')))].filter(word => !words.includes(word))).slice(0,2);
+    for (const word of shuffle([...words,...extras])) {
       const button = document.createElement('button');
       button.textContent = word;
       bank.append(button);
@@ -523,7 +698,7 @@ function show() {
 
   choices.className = 'stack';
   const column = meaning ? 3 : 2;
-  const distractors = shuffle(data.filter(item => item !== row)).slice(0,2);
+  const distractors = shuffle(data.filter((item,index) => item[meaning ? 3 : 2] !== row[meaning ? 3 : 2] && index !== 22 && index !== 26)).slice(0,2);
   for (const option of shuffle([row,...distractors])) {
     const button = document.createElement('button');
     button.textContent = option[column];
@@ -539,7 +714,7 @@ function show() {
     };
   }
 }
-function finish(){playSound([523, 659, 784, 1047]);animateScreen();let points=5,title='Повторение пройдено';if(mode==='lesson'){title='Урок пройден';if(!s.done.includes(i)){s.done.push(i);points=10}}if(mode==='final'){title='Диалог завершён';if(!s.badge)points=25;s.badge=true}s.xp+=points;const extended=save(mode!=='review');stats();app.innerHTML=(extended?streakCard(true):'')+'<section class="hero"><small>+'+points+' ОЧКОВ</small><h2>'+title+'</h2><p>'+(mode==='final'?'🏅 Твой значок: «Могу начать разговор»':'Ещё один шаг к разговору на аварском.')+'</p><button class="primary" id="home">Продолжить →</button></section>';document.querySelector('#home').onclick=mode==='review'?reviewScreen:home}
+function finish(){playSound([523, 659, 784, 1047]);animateScreen();let points=5,title='Повторение пройдено';if(mode==='lesson'){title='Урок пройден';if(!s.done.includes(i)){s.done.push(i);points=10}}if(mode==='final'){title='Диалог завершён';if(!s.badge)points=25;s.badge=true}s.xp+=points;const daily=dailyTasks();if(mode==='lesson')daily.lessons++;if(mode==='review')daily.review++;const extended=save(mode!=='review');stats();if(mode==='lesson'){document.body.classList.add('reward-flow');app.innerHTML=mealReward(points,extended);document.querySelector('#home').onclick=extended?()=>seriesScreen(true):home;return}app.innerHTML=(extended?streakCard(true):'')+'<section class="hero"><small>+'+points+' ОЧКОВ</small><h2>'+title+'</h2><p>'+(mode==='final'?'🏅 Твой значок: «Могу начать разговор»':'Ещё один шаг к разговору на аварском.')+'</p><button class="primary" id="home">Продолжить →</button></section>';document.querySelector('#home').onclick=mode==='review'?reviewScreen:home}
 dashboard();
 window.setInterval?.(stats,30000);
 document.addEventListener?.('visibilitychange',stats);
