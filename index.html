@@ -34,15 +34,32 @@ body.lesson-flow .nav,body.reward-flow .nav{display:none}body.lesson-flow header
 .pair-column button{min-height:58px;padding:8px;overflow-wrap:anywhere;background:#fff;border:1px solid #cde2d5;border-radius:14px;box-shadow:0 3px #dcebe0;color:#213f34;font-weight:800}
 .pair-column button[aria-pressed=true]{background:#e5f3fe;border-color:#5294bf;box-shadow:0 3px #a5cce5}
 .pair-column button.matched{background:#e3f3e8;color:#24764e;box-shadow:none;opacity:.65}
+.profile-head .friends-entry{display:flex;align-items:center;gap:12px;width:calc(100% - 36px);margin:18px auto 0;text-align:left;background:#eaf6ee;color:#176748;border-color:#cce5d5}
+.friends-entry span{flex:1}.friends-entry small{display:block;margin-top:3px;color:#54746a;font-weight:600}
+.friends-back{min-height:40px;margin-bottom:14px;color:#176748}
+.friends-hero{display:block;position:relative;top:auto;padding:24px;margin-bottom:16px;border-radius:22px;background:radial-gradient(circle at 92% 10%,#438e6d,transparent 48%),#194e3a;color:white}
+.friends-hero h1{margin:0}.friends-hero p{margin:6px 0 0;color:#d8efe0}
+.friends-panel{display:grid;gap:14px}.friends-panel p{margin:0}.friends-panel [role=status]:empty,.friends-panel #friends-result:empty,.friends-panel #friends-list:empty{display:none}
+#friends-form,#friends-own,#friends-result:not(:empty),#friends-list:not(:empty){padding:16px;border:1px solid #dbe9e0;border-radius:18px;background:#f8fcf9}
+#friends-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}#friends-form label{grid-column:1/-1;font-weight:800;font-size:14px}
+#friend-name{min-width:0;width:100%;border-radius:12px;border:1px solid #a9c9b7;padding:10px;font:inherit;color:inherit;background:white}
+#friends-form .primary{min-width:0;width:auto;padding-inline:13px}
+#friends-own{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}#friends-own[hidden]{display:none}
+.friends-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:16px}.friends-tabs button{font-size:11px;padding:6px 2px}.friends-tabs button[aria-pressed=true]{background:#176748;color:white;border-color:#176748}
+.friends-empty{text-align:center;padding:20px 10px;color:#54746a;border:1px dashed #bed9c8;border-radius:13px}
+.friends-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.friends-row button:first-child{flex-basis:100%;text-align:left;overflow-wrap:anywhere}
+.friend-avatar{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#d9eee1;color:#176748;font-size:22px;font-weight:900}
+#friends-result h2,#friends-list h2{margin:8px 0}#friends-result button{margin-top:8px}#friends-status{padding:10px;border-radius:12px;background:#edf6ef}
+@media(max-width:350px){#friends-form{grid-template-columns:1fr}}
 
 </style></head><body><div class="shell"><header><button class="brand" aria-label="Салам! На главную"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#16855c"/><path d="m6 23 7-14 5 8 3-5 5 11H6Z" fill="#eaf6d8"/><path d="m10 15 3 2 3-3" stroke="#16855c" stroke-width="1.7"/></svg><span>салам<span style="color:#8ab95d">!</span></span></button><div class="header-stats"><button class="stat-pill" type="button" id="streak-count"></button><span class="stat-pill" id="score"></span></div></header><main id="app"></main><nav class="nav" aria-label="Разделы приложения"><button data-tab="home">Главная</button><button data-tab="course">Уроки</button><button data-tab="review">Повторение</button><button data-tab="tasks">Задания</button><button data-tab="progress">Профиль</button></nav></div><script>
 function showFriends() {
   const key = 'salam-friends-account';
   let account;
   try { account = JSON.parse(localStorage.getItem(key)); } catch {}
-  app.innerHTML = pageHeading('ПРОФИЛЬ','Друзья') + `
-    <button id="friends-back">← В профиль</button>
-    <section class="profile-edit">
+  app.innerHTML = '' + `
+    <button id="friends-back" class="friends-back">← В профиль</button><header class="friends-hero"><h1>Друзья</h1><p>Найди знакомых по @юзернейму</p></header>
+    <section class="friends-panel"><div id="friends-own" hidden></div>
       <p id="friends-status" role="status"></p>
       <form id="friends-form">
         <label for="friend-name"></label>
@@ -53,7 +70,7 @@ function showFriends() {
       <div id="friends-list"></div>
     </section>`;
   app.querySelector('#friends-back').onclick = progressScreen;
-  const panel = app.querySelector('.profile-edit');
+  const panel = app.querySelector('.friends-panel');
   const status = panel.querySelector('#friends-status');
   const form = panel.querySelector('form');
   const input = panel.querySelector('input');
@@ -93,28 +110,50 @@ function showFriends() {
     name.textContent = person.nickname;
     const handle = document.createElement('p');
     handle.textContent = '@' + person.username;
-    result.append(name, handle);
+    const avatar = document.createElement('span');
+    avatar.className = 'friend-avatar';
+    avatar.textContent = Array.from(person.nickname || person.username)[0].toUpperCase();
+    result.append(avatar, name, handle);
     return result;
   }
+  let activeGroup = 0;
   async function refresh() {
     const {me, rows} = await call('list');
     list.replaceChildren();
     const own = document.createElement('p');
     own.textContent = 'Твой юзернейм: @' + me.username;
-    list.append(own);
+    const identity = panel.querySelector('#friends-own');
+    identity.hidden = false;
+    identity.replaceChildren(own, button('Копировать', async () => {
+      await navigator.clipboard.writeText('@' + me.username);
+      status.textContent = 'Юзернейм скопирован.';
+    }));
     const groups = [
       ['Друзья', rows.filter(row => row.accepted)],
-      ['Входящие заявки', rows.filter(row => !row.accepted && row.sender !== me.username)],
-      ['Отправленные заявки', rows.filter(row => !row.accepted && row.sender === me.username)]
+      ['Входящие', rows.filter(row => !row.accepted && row.sender !== me.username)],
+      ['Отправленные', rows.filter(row => !row.accepted && row.sender === me.username)]
     ];
-    for (const [title, people] of groups) {
+    const tabs = document.createElement('div');
+    tabs.className = 'friends-tabs';
+    const content = document.createElement('div');
+    list.append(tabs, content);
+    function renderGroup() {
+      tabs.replaceChildren();
+      content.replaceChildren();
+      groups.forEach(([label, members], index) => {
+        const tab = button(label + ' · ' + members.length, () => { activeGroup = index; renderGroup(); tabs.children[index].focus(); });
+        tab.setAttribute('aria-pressed', String(index === activeGroup));
+        tabs.append(tab);
+      });
+      const [title, people] = groups[activeGroup];
       const heading = document.createElement('h2');
       heading.textContent = title;
-      list.append(heading);
+      content.append(heading);
       if (!people.length) {
         const empty = document.createElement('p');
-        empty.textContent = 'Пока пусто';
-        list.append(empty);
+        empty.className = 'friends-empty';
+        empty.textContent = ['Найди друга по юзернейму и отправь заявку.', 'Новых заявок пока нет.', 'Ты пока не отправлял заявки.'][activeGroup];
+        content.append(empty);
       }
       for (const person of people) {
         const row = document.createElement('div');
@@ -127,9 +166,11 @@ function showFriends() {
             }));
           }
         }
-        list.append(row);
+        row.className = 'friends-row';
+        content.append(row);
       }
     }
+    renderGroup();
   }
   const submit = form.querySelector('button');
   form.querySelector('label').textContent = account ? 'Найти по @юзернейму' : 'Выбери уникальный @юзернейм';
@@ -439,7 +480,8 @@ function progressScreen() {
   const name=s.nickname||'Ученик';document.querySelector('#nickname').textContent=name;document.querySelector('#avatar').textContent=Array.from(name)[0].toUpperCase();
   const form=document.querySelector('#name-form'),input=document.querySelector('#name-input');input.value=name;
   const friendsButton = document.createElement('button');
-  friendsButton.textContent = 'Друзья';
+  friendsButton.className = 'friends-entry';
+  friendsButton.innerHTML = icon('user') + '<span><strong>Друзья</strong><small>Поиск по @юзернейму и заявки</small></span>' + icon('arrow');
   friendsButton.onclick = showFriends;
   document.querySelector('#edit-name').after(friendsButton);
   document.querySelector('#edit-name').onclick=()=>{form.hidden=false;input.focus();};document.querySelector('#cancel-name').onclick=()=>form.hidden=true;
